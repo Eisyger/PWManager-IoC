@@ -1,0 +1,28 @@
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/bin/Debug/net8.0/PWManager.exe
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/bin/Debug/net8.0/PWManager.deps.json
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/bin/Debug/net8.0/PWManager.runtimeconfig.json
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/bin/Debug/net8.0/PWManager.dll
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/bin/Debug/net8.0/PWManager.pdb
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/obj/Debug/net8.0/PWManager.GeneratedMSBuildEditorConfig.editorconfig
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/obj/Debug/net8.0/PWManager.AssemblyInfoInputs.cache
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/obj/Debug/net8.0/PWManager.AssemblyInfo.cs
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/obj/Debug/net8.0/PWManager.csproj.CoreCompileInputs.cache
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/obj/Debug/net8.0/PWManager.dll
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/obj/Debug/net8.0/refint/PWManager.dll
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/obj/Debug/net8.0/PWManager.pdb
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/obj/Debug/net8.0/PWManager.genruntimeconfig.cache
+C:/Users/31337/OneDrive - Werner Schmelmer GmbH & Co. KG/COMMON/04_CODING/C#/IoPWM/PWManager/obj/Debug/net8.0/ref/PWManager.dll
+/media/eisy/w/projekte/IoPWM/PWManager/obj/Debug/net8.0/PWManager.GeneratedMSBuildEditorConfig.editorconfig
+/media/eisy/w/projekte/IoPWM/PWManager/obj/Debug/net8.0/PWManager.AssemblyInfoInputs.cache
+/media/eisy/w/projekte/IoPWM/PWManager/obj/Debug/net8.0/PWManager.AssemblyInfo.cs
+/media/eisy/w/projekte/IoPWM/PWManager/obj/Debug/net8.0/PWManager.csproj.CoreCompileInputs.cache
+/media/eisy/w/projekte/IoPWM/PWManager/obj/Debug/net8.0/PWManager.dll
+/media/eisy/w/projekte/IoPWM/PWManager/obj/Debug/net8.0/refint/PWManager.dll
+/media/eisy/w/projekte/IoPWM/PWManager/obj/Debug/net8.0/PWManager.pdb
+/media/eisy/w/projekte/IoPWM/PWManager/bin/Debug/net8.0/PWManager
+/media/eisy/w/projekte/IoPWM/PWManager/bin/Debug/net8.0/PWManager.deps.json
+/media/eisy/w/projekte/IoPWM/PWManager/bin/Debug/net8.0/PWManager.runtimeconfig.json
+/media/eisy/w/projekte/IoPWM/PWManager/bin/Debug/net8.0/PWManager.dll
+/media/eisy/w/projekte/IoPWM/PWManager/bin/Debug/net8.0/PWManager.pdb
+/media/eisy/w/projekte/IoPWM/PWManager/obj/Debug/net8.0/PWManager.genruntimeconfig.cache
+/media/eisy/w/projekte/IoPWM/PWManager/obj/Debug/net8.0/ref/PWManager.dll
