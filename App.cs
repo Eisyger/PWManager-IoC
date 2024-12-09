@@ -1,5 +1,4 @@
 using System.Data;
-using System.Text.Json;
 
 namespace PWManager;
 
@@ -85,7 +84,7 @@ class App(
             
             token = _com.WriteRegister(
                 (u, p) => u==p, // Validate - impl fehlt noch
-                CypherService.CreateToken); // Create Token
+                _cypher.CreateToken); // Create Token
             
             
             _logger.Log("Register: Token wurde erstellt");
@@ -98,7 +97,7 @@ class App(
         {
             token = _com.WriteLogin(
                 (u, p) => u==p, // Validate - impl fehlt noch
-                CypherService.CreateToken); // Create Token
+                _cypher.CreateToken); // Create Token
             
             
             _logger.Log("Login: Token wurde erstellt.");

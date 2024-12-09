@@ -7,6 +7,7 @@ namespace PWManager
 
         string HashPassword(string username, string password);
 
-        static abstract string CreateToken(string username, string password);
+        string CreateToken(string username, string password);
+        
     } 
 }

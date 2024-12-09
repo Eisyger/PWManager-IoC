@@ -89,7 +89,7 @@ public class CypherService : ICypherService
         return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
     }
 
-    public static string CreateToken(string username, string password)
+    public string CreateToken(string username, string password)
     {
         var salt = "984!489///>(8)";
         var combined = username + salt + password;
