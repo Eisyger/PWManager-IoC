@@ -1,18 +1,25 @@
-﻿using PWManager.Services;
+using Microsoft.Extensions.DependencyInjection;
+using PWManager.Services;
 
 namespace PWManager;
-class Programm
+
+class Program
 {
     public static void Main(string[] args)
-    { 
-       var app = new App(
-        new LoggingService(), 
-        new CommunicationService(), 
-        new CypherService(), 
-        new PersistenceService(Path.Combine(Environment.CurrentDirectory, "data.txt")),
-        new ContextService());
+    {
+        // Erstelle IoC-Continer
+        var serviceProvider = new ServiceCollection()
+            .AddSingleton<ILoggingService, LoggingService>()  
+            .AddSingleton<ICommunicationService, CommunicationService>()
+            .AddSingleton<ICypherService, CypherService>()
+            .AddSingleton<IPersistenceService, PersistenceService>(serviceProvider => 
+                new PersistenceService(Path.Combine(Environment.CurrentDirectory, "data.txt")))
+            .AddSingleton<IContextService, ContextService>()
+            .AddSingleton<App>()  
+            .BuildServiceProvider();
         
-       app.Run();
+        var app = serviceProvider.GetRequiredService<App>();
+        app.Run();
     }
 }
 
