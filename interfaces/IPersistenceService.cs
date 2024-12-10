@@ -7,6 +7,6 @@ namespace PWManager;
     public interface IPersistenceService
 {
     void SaveData(string data);
-    (bool Succsess, string data) LoadData();
+    (bool Success, string data) LoadData();
     string GetPath();
 }

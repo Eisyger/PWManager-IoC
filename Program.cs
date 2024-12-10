@@ -3,11 +3,11 @@ using PWManager.Services;
 
 namespace PWManager;
 
-class Program
+class Program6
 {
     public static void Main(string[] args)
     {
-        // Erstelle IoC-Continer
+        // Erstelle IoC-Container
         var serviceProvider = new ServiceCollection()
             .AddSingleton<ILoggingService, LoggingService>()  
             .AddSingleton<ICommunicationService, CommunicationService>()

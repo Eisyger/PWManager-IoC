@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/media/eisy/w/projekte/IoPWM/PWManager/PWManager.csproj": {}
+    "/media/eisy/w/projekte/git/IoPWM/PWManager/PWManager.csproj": {}
   },
   "projects": {
-    "/media/eisy/w/projekte/IoPWM/PWManager/PWManager.csproj": {
+    "/media/eisy/w/projekte/git/IoPWM/PWManager/PWManager.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/media/eisy/w/projekte/IoPWM/PWManager/PWManager.csproj",
+        "projectUniqueName": "/media/eisy/w/projekte/git/IoPWM/PWManager/PWManager.csproj",
         "projectName": "PWManager",
-        "projectPath": "/media/eisy/w/projekte/IoPWM/PWManager/PWManager.csproj",
+        "projectPath": "/media/eisy/w/projekte/git/IoPWM/PWManager/PWManager.csproj",
         "packagesPath": "/home/eisy/.nuget/packages/",
-        "outputPath": "/media/eisy/w/projekte/IoPWM/PWManager/obj/",
+        "outputPath": "/media/eisy/w/projekte/git/IoPWM/PWManager/obj/",
         "projectStyle": "PackageReference",
         "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
@@ -33,11 +33,6 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -65,7 +60,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/snap/dotnet-sdk/current/sdk/8.0.404/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.110/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

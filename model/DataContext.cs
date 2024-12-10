@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace PWManager
 {
-    public class DataContext
+    public class DataContext : IDataContext
     {
         public string Name { get; set; } = string.Empty;
         public string User { get; set; } = string.Empty;

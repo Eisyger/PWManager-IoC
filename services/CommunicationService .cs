@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace PWManager;
-public class CommunicationService : ICommunicationService
+public sealed class CommunicationService : ICommunicationService
 {
     public string WriteWelcome()
     {
@@ -12,126 +12,103 @@ public class CommunicationService : ICommunicationService
         return "";
     }
     
-    public string WriteLogin()
+    public string WriteRegister(Func<string, string, bool> validate, Func<string, string, string> token)
     {
-        throw new NotImplementedException();
-    }
-
-    public virtual string WriteRegister(Func<string, string, bool> validate, Func<string, string, string> token)
-    {
-        string username;
-        string password;
+        var invalidInput = false;
+        string? username;
+        string? password;
         do{
+            Console.Clear();
+            Console.WriteLine(invalidInput ? "UNGÜLTIGE EINGABE" : "REGISTRIERUNG");
             Console.WriteLine("Es ist noch kein Account Registriert.");
             Console.WriteLine("Starte registrierung...");
             Console.WriteLine("Gib einen Usernamen an:");
             username = Console.ReadLine() ?? "";
             Console.WriteLine("Gib ein Masterpasswort an:");
-            password = ReadPassword();
-        } while (username == "" || password == "" || !validate.Invoke(username, password));
+            password = ValidationHelper.ReadPassword();
+            invalidInput = true;
+        } while (string.IsNullOrWhiteSpace(username)|| 
+                 string.IsNullOrWhiteSpace(password) || 
+                 !validate.Invoke(username, password));
 
         return token.Invoke(username, password);
     }
-    private string ReadPassword()
+    public string WriteLogin(Func<string, string, bool> validate, Func<string, string, string> token)
     {
-        var password = string.Empty;
-        ConsoleKey key;
-
-        do
-        {
-            var keyInfo = Console.ReadKey(intercept: true);
-            key = keyInfo.Key;
-
-            if (key == ConsoleKey.Backspace && password.Length > 0)
-            {
-                password = password[..^1];
-                Console.Write("\b \b"); // Entferne letzten Charakter
-            }
-            else if (!char.IsControl(keyInfo.KeyChar))
-            {
-                password += keyInfo.KeyChar;
-                Console.Write("*");
-            }
-        } while (key != ConsoleKey.Enter);
-
-        Console.WriteLine(); // Neue Zeile nach Eingabe
-        return password;
-    }
-
-    public virtual string WriteLogin(Func<string, string, bool> validate, Func<string, string, string> token)
-    {
+        var invalidInput = false;
         string? username;
         string? password;
-        var isValidInput = true;
         do{
-            if (isValidInput == false)
-            {
-                Console.WriteLine("Falscher Username oder Passwort.");
-            }
-            Console.WriteLine("Login");
+            Console.Clear();
+            Console.WriteLine(invalidInput ? "UNGÜLTIGE EINGABE" : "LOGIN");
+            Console.WriteLine("Starte Login...");
             Console.WriteLine("Username:");
             username = Console.ReadLine();
             Console.WriteLine("Passwort:");
-            password = ReadPassword();
-            isValidInput = false;
-        }while (username is null || password == string.Empty || !validate.Invoke(username, password));
+            password = ValidationHelper.ReadPassword();
+            invalidInput = true;
+        }while (string.IsNullOrWhiteSpace(username)|| 
+                string.IsNullOrWhiteSpace(password) || 
+                !validate.Invoke(username, password));
 
         return token.Invoke(username, password);
     }
-    
-    public bool IsRegister(bool startSignUp)
-    {
-        Console.WriteLine(startSignUp ? "Starte Login." : "Starte Registrierung.");
-        return startSignUp;
-    }
-    
-    public DataContext WriteAdd()
+    public (bool Success, IDataContext? dataContext) WriteAdd()
     {
         Console.WriteLine("ACCOUNT HINZUFÜGEN");
-        Console.WriteLine("Name des Accounts:");
+        Console.WriteLine("Accountname:");
         var name = Console.ReadLine();
-        Console.WriteLine("Username:");
+        if (string.IsNullOrEmpty(name))
+        {   
+            Console.WriteLine("FEHLER: Es wurde kein Accountname angegeben.");
+            Console.WriteLine("Der Accountname ist ein Pflichtfeld.");
+            return (false, null);
+        }
+        Console.WriteLine("Benutzername:");
         var user = Console.ReadLine();
         Console.WriteLine("Password:");
-        var pwd = ReadPassword();
+        var pwd = ValidationHelper.ReadPassword();
         Console.WriteLine("URL:");
         var url = Console.ReadLine();
         Console.WriteLine("Beschreibung:");
         var description = Console.ReadLine();
 
-        return new DataContext()
+        return (true, new DataContext()
         {
-            Name = name,
-            User = user,
+            Name = name ?? "-",
+            User = user ?? "-",
             Password = pwd,
-            Website = url,
-            Description = description
-        };
+            Website = url ?? "-",
+            Description = description ?? "-"
+        });
     }
-
     public string WriteRemove()
     {
         throw new NotImplementedException();
     }
-
-    public string WriteExit()
+    public void WriteExit()
     {
-        throw new NotImplementedException();
+        Console.WriteLine("Anwendung beendet.");
     }
-    public MenuAction WriteShow()
+    public MenuAction WriteMenu()
     {
+        var validInput = true;
         while (true)
         {
-            Console.WriteLine(@"
-===========================
-   PASSWORT MANAGEMENT
-===========================
-[s] Accounts ansehen
-[a] Account hinzufügen
-[r] Account löschen
-[e] Beenden
-===========================
-Bitte eine Option wählen:");
+            Console.Clear();
+            Console.WriteLine("""
+                              ===========================
+                                 PASSWORT MANAGEMENT
+                              ===========================
+                              [s] Accounts ansehen
+                              [a] Account hinzufügen
+                              [r] Account löschen
+                              [e] Beenden
+                              ===========================
+                              """);
+Console.WriteLine(validInput ? "Bitte eine Option wählen:" : "Ungültige Eingabe. Bitte [s], [a], [r] oder [e] eingeben.");
+validInput = true;
+
 
             var input = Console.ReadLine()?.Trim().ToLower();
 
@@ -146,10 +123,25 @@ Bitte eine Option wählen:");
                 case "e":
                     return MenuAction.Exit;
                 default:
-                    Console.WriteLine("Ungültige Eingabe. Bitte [s], [a], [r] oder [e] eingeben.");
+                    validInput = false;
                     break;
             }
         }
     }
-
+    public void WriteDump(IContextService contextService)
+    {
+        var contexts = contextService.GetAll();
+        if (contexts.Count == 0)
+        {
+            Console.WriteLine("Keine Accountdaten vorhanden.");
+        }
+        else
+        {
+            foreach (var c in contextService.GetAll())
+            {
+                Console.WriteLine(c.ToString());
+            }
+        }
+        Console.ReadLine();
+    }
 }

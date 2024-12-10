@@ -41,7 +41,7 @@ public class CypherService : ICypherService
         return BitConverter.ToString(encryptedBytes).Replace("-", string.Empty);
     }
 
-    public (bool Success, string? DecryptedText) Decrypt(string ciphertext, string token)
+    public (bool Success, string DecryptedText) Decrypt(string ciphertext, string token)
     {
         using var aes = Aes.Create();
         (aes.Key, aes.IV) = GenerateKeyAndIV(token);
@@ -71,7 +71,7 @@ public class CypherService : ICypherService
             throw new ArgumentException("Ungültiger Hexadezimal-String.");
 
         var byteArray = new byte[hex.Length / 2];
-        for (int i = 0; i < byteArray.Length; i++)
+        for (var i = 0; i < byteArray.Length; i++)
         {
             byteArray[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
         }
@@ -81,7 +81,7 @@ public class CypherService : ICypherService
 
     public string HashPassword(string username, string password)
     {
-        var salt = "2ex4|198$";
+        const string salt = "2ex4|198$";
         var combined = username + salt + password;
         
         // Hash erstellen und in Hex-Format umwandeln
@@ -91,7 +91,7 @@ public class CypherService : ICypherService
 
     public string CreateToken(string username, string password)
     {
-        var salt = "984!489///>(8)";
+        const string salt = "984!489///>(8)";
         var combined = username + salt + password;
         
         // Hash erstellen und in Hex-Format umwandeln

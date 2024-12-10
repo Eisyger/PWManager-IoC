@@ -10,12 +10,12 @@ namespace PWManager
     {
         string WriteWelcome();
         string WriteRegister(Func<string, string, bool> validate, Func<string, string, string> token);
-        bool IsRegister(bool isStartUp);
         string WriteLogin(Func<string, string, bool> validate, Func<string, string, string> token);
-        DataContext WriteAdd();
+        (bool Success, IDataContext? dataContext) WriteAdd();
         string WriteRemove();
-        string WriteExit();
-        MenuAction WriteShow();
+        void WriteExit();
+        MenuAction WriteMenu();
+        void WriteDump(IContextService contextService);
     }
     public enum MenuAction
     {
