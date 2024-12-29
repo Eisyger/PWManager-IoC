@@ -5,7 +5,7 @@ namespace PWManager
         void Add(DataContext newContext);
         void Remove(string name);
         void Edit(string name, DataContext updatedContext);
-        DataContext Get(string name);
+        IDataContext Get(string name);
         List<DataContext> GetAll();
         void SetAll(List<DataContext> newContext);
     }

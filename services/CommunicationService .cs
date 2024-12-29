@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace PWManager;
 public sealed class CommunicationService : ICommunicationService
 {
@@ -53,7 +48,7 @@ public sealed class CommunicationService : ICommunicationService
 
         return token.Invoke(username, password);
     }
-    public (bool Success, IDataContext? dataContext) WriteAdd()
+    public (bool Success, DataContext? dataContext) WriteAdd()
     {
         Console.WriteLine("ACCOUNT HINZUFÜGEN");
         Console.WriteLine("Accountname:");
@@ -73,14 +68,16 @@ public sealed class CommunicationService : ICommunicationService
         Console.WriteLine("Beschreibung:");
         var description = Console.ReadLine();
 
-        return (true, new DataContext()
+        var ctx = new DataContext()
         {
             Name = name ?? "-",
             User = user ?? "-",
             Password = pwd,
             Website = url ?? "-",
             Description = description ?? "-"
-        });
+        };
+        
+        return (true, ctx);
     }
     public string WriteRemove()
     {
@@ -144,4 +141,5 @@ validInput = true;
         }
         Console.ReadLine();
     }
+   
 }

@@ -1,18 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace PWManager
 {
     public class ContextService : IContextService
     {
-        private List<DataContext> _context;
+        private List<DataContext> _context = [];
 
-        public ContextService()
-        {
-            _context = [];
-        }
         public void Add(DataContext newContext)
         {
             _context.Add(newContext);
@@ -30,9 +21,9 @@ namespace PWManager
                 _context[index] = updatedContext;
             }        
         }
-        public DataContext Get(string name)
+        public IDataContext Get(string name)
         {
-            return _context.FirstOrDefault(x => x.Name == name);
+            return _context.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
         }
         public List<DataContext> GetAll()
         {
