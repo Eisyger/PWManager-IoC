@@ -23,7 +23,7 @@ namespace PWManager
         }
         public IDataContext Get(string name)
         {
-            return _context.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
+            return _context.FirstOrDefault(x => x.Name == name) ?? throw new ArgumentNullException();
         }
         public List<DataContext> GetAll()
         {

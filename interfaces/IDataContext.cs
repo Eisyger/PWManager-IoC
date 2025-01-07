@@ -1,6 +1,5 @@
 namespace PWManager
 {
-    // Interface für die DataContext-Klasse
     public interface IDataContext
     {
         string Name { get; set; }

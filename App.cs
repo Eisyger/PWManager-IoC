@@ -22,26 +22,27 @@ internal class App(
             
             // Lade Daten aus Savefile in _context
             var saveFileData = persistenceService.LoadData();
-            if (saveFileData.Success && startUp.IsLogin)
+            switch (saveFileData.Success)
             {
-                loggingService.Log("Daten in SaveFile vorhanden.");
+                case true when startUp.IsLogin:
+                    try
+                    {
+                        var result = cypher.Decrypt(saveFileData.data, token);
+                        context.SetAll(JsonSerializer.Deserialize<List<DataContext>>(result.DecryptedText) 
+                                       ?? throw new SerializationException("Es konnten keine Daten aus dem SaveFile geladen werden."));
+                    
+                        loggingService.Log("Daten aus SaveFile geladen.");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
 
-                try
-                {
-                    var result = cypher.Decrypt(saveFileData.data, token);
-                    context.SetAll(JsonSerializer.Deserialize<List<DataContext>>(result.DecryptedText) 
-                                    ?? throw new SerializationException("Es konnten aus dem Savefile keine Daten geladen werden."));
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
-            }
-            else if(!saveFileData.Success && startUp.IsLogin)
-            {
-                
-                loggingService.Error("Keine Daten in SaveFile vorhanden.");
+                    break;
+                case false when startUp.IsLogin:
+                    loggingService.Error("Keine Daten in SaveFile vorhanden.");
+                    return;
             }
 
             // Zeige Menu
@@ -63,9 +64,21 @@ internal class App(
                         }
                         break;
                     case MenuAction.RemoveAccount:
+                        var name = com.WriteRemove();
+                        if (context.GetAll().Any(x => x.Name == name))
+                        {
+                            context.Remove(name);
+                        }
+                        else
+                        {
+                            loggingService.Error($"Kein Account mit dem Namen {name} vorhanden.");
+                        }
+                        break;
                     case MenuAction.Exit:
                         com.WriteExit();
                         return;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
     }

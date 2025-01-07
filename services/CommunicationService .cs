@@ -70,7 +70,7 @@ public sealed class CommunicationService : ICommunicationService
 
         var ctx = new DataContext()
         {
-            Name = name ?? "-",
+            Name = name,
             User = user ?? "-",
             Password = pwd,
             Website = url ?? "-",
@@ -81,7 +81,16 @@ public sealed class CommunicationService : ICommunicationService
     }
     public string WriteRemove()
     {
-        throw new NotImplementedException();
+        Console.WriteLine("ACCOUNT LÖSCHEN");
+        Console.WriteLine("Accountname:");
+        var account = Console.ReadLine();
+        if (!string.IsNullOrEmpty(account))
+        {
+            return account;
+        }
+        Console.WriteLine("FEHLER: Es wurde kein Accountname angegeben.");
+        Console.WriteLine("Der Accountname ist ein Pflichtfeld.");
+        return "";
     }
     public void WriteExit()
     {

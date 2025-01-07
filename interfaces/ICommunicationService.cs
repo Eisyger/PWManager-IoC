@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace PWManager
 
 {
@@ -11,7 +6,7 @@ namespace PWManager
         string WriteWelcome();
         string WriteRegister(Func<string, string, bool> validate, Func<string, string, string> token);
         string WriteLogin(Func<string, string, bool> validate, Func<string, string, string> token);
-        (bool Success, IDataContext? dataContext) WriteAdd();
+        (bool Success, DataContext? dataContext) WriteAdd();
         string WriteRemove();
         void WriteExit();
         MenuAction WriteMenu();

@@ -3,7 +3,7 @@ using PWManager.Services;
 
 namespace PWManager;
 
-class Program6
+class Program
 {
     public static void Main(string[] args)
     {
