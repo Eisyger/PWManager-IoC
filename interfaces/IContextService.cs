@@ -7,7 +7,7 @@ namespace PWManager.interfaces
         void Add(DataContext newContext);
         void Remove(string name);
         void Edit(string name, DataContext updatedContext);
-        IDataContext Get(string name);
+        IDataContext GetContext(string name);
         List<DataContext> GetAll();
         void SetAll(List<DataContext> newContext);
     }

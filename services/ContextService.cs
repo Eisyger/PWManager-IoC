@@ -24,7 +24,7 @@ namespace PWManager.services
                 _context[index] = updatedContext;
             }        
         }
-        public IDataContext Get(string name)
+        public IDataContext GetContext(string name)
         {
             return _context.FirstOrDefault(x => x.Name == name) ?? throw new ArgumentNullException();
         }

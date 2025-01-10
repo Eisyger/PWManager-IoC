@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "c6qPScZPtNk=",
+  "dgSpecHash": "Tekrz1P+xTQ=",
   "success": true,
   "projectFilePath": "/media/eisy/w/projekte/git/IoPWM/PWManager/PWManager.csproj",
   "expectedPackageFiles": [
     "/home/eisy/.nuget/packages/microsoft.extensions.dependencyinjection/9.0.0/microsoft.extensions.dependencyinjection.9.0.0.nupkg.sha512",
-    "/home/eisy/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/9.0.0/microsoft.extensions.dependencyinjection.abstractions.9.0.0.nupkg.sha512"
+    "/home/eisy/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/9.0.0/microsoft.extensions.dependencyinjection.abstractions.9.0.0.nupkg.sha512",
+    "/home/eisy/.nuget/packages/textcopy/6.2.1/textcopy.6.2.1.nupkg.sha512"
   ],
   "logs": []
 }

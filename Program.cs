@@ -7,6 +7,7 @@ namespace PWManager;
 
 class Program
 {
+    [STAThread]
     public static void Main(string[] args)
     {
         // Erstelle IoC-Container

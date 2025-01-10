@@ -17,3 +17,4 @@
 /media/eisy/w/projekte/git/IoPWM/PWManager/obj/Debug/net9.0/PWManager.pdb
 /media/eisy/w/projekte/git/IoPWM/PWManager/obj/Debug/net9.0/PWManager.genruntimeconfig.cache
 /media/eisy/w/projekte/git/IoPWM/PWManager/obj/Debug/net9.0/ref/PWManager.dll
+/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/TextCopy.dll

@@ -12,11 +12,14 @@ namespace PWManager
         (bool Success, DataContext? dataContext) WriteAdd();
         string WriteRemove();
         void WriteExit();
-        MenuAction WriteMenu();
+        (MenuAction Action, string Args) WriteMenu();
         void WriteDump(IContextService contextService);
+        void WriteDump(IDataContext context);
     }
     public enum MenuAction
     {
+        CopyAccount,   // Passwort kopieren (c)
+        GetAccount,    // Ausgewählten Account anzeigen (g)
         ViewAccounts,  // Accounts ansehen (s)
         AddAccount,    // Account hinzufügen (a)
         RemoveAccount, // Account löschen (r)

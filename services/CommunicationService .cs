@@ -99,7 +99,7 @@ public sealed class CommunicationService : ICommunicationService
     {
         Console.WriteLine("Anwendung beendet.");
     }
-    public MenuAction WriteMenu()
+    public (MenuAction Action, string Args) WriteMenu()
     {
         var validInput = true;
         while (true)
@@ -109,28 +109,41 @@ public sealed class CommunicationService : ICommunicationService
                               ===========================
                                  PASSWORT MANAGEMENT
                               ===========================
-                              [s] Accounts ansehen
+                              [l] Accounts auflisten
+                              [g <account name>] Ausgewählten Account ansehen
+                              [c <account name>] Passwort des ausgewählten Accounts kopieren
                               [a] Account hinzufügen
                               [r] Account löschen
                               [e] Beenden
                               ===========================
                               """);
-Console.WriteLine(validInput ? "Bitte eine Option wählen:" : "Ungültige Eingabe. Bitte [s], [a], [r] oder [e] eingeben.");
-validInput = true;
-
-
-            var input = Console.ReadLine()?.Trim().ToLower();
-
-            switch (input)
+            Console.WriteLine(validInput ? "Bitte eine Option wählen:" : "Ungültige Eingabe!");
+            
+            var input = Console.ReadLine()?.Trim().ToLower().Split(" ");
+            
+            if (input is null || input.Length == 0)
             {
-                case "s":
-                    return MenuAction.ViewAccounts;
+                validInput = false;
+                continue;
+            }
+            
+            var arg = input[0];
+            var msg = input.Length > 1 ? input[1] : string.Empty;
+
+            switch (arg)
+            {
+                case "l":
+                    return (MenuAction.ViewAccounts, string.Empty);
+                case "g":
+                    return (MenuAction.GetAccount, msg);
+                case "c":
+                    return (MenuAction.CopyAccount, msg);
                 case "a":
-                    return MenuAction.AddAccount;
+                    return (MenuAction.AddAccount, string.Empty);
                 case "r":
-                    return MenuAction.RemoveAccount;
+                    return (MenuAction.RemoveAccount, string.Empty);
                 case "e":
-                    return MenuAction.Exit;
+                    return (MenuAction.Exit, string.Empty);
                 default:
                     validInput = false;
                     break;
@@ -151,6 +164,12 @@ validInput = true;
                 Console.WriteLine(c.ToString());
             }
         }
+        Console.ReadLine();
+    }
+
+    public void WriteDump(IDataContext context)
+    {
+        Console.WriteLine(context.ToString());
         Console.ReadLine();
     }
    
