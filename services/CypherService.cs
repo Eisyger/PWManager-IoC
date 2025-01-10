@@ -1,7 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
+using PWManager.interfaces;
 
-namespace PWManager;
+namespace PWManager.services;
 public class CypherService : ICypherService
 {
     private (byte[] key, byte[] iv) GenerateKeyAndIV(string token)

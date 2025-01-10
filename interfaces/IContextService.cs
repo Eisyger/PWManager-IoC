@@ -1,4 +1,6 @@
-namespace PWManager
+using PWManager.model;
+
+namespace PWManager.interfaces
 {
     public interface IContextService
     {

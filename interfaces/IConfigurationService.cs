@@ -1,4 +1,4 @@
-namespace PWManager
+namespace PWManager.interfaces
 {
     public interface IConfigurationService
     {

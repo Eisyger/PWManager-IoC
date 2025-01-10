@@ -1,4 +1,7 @@
-namespace PWManager;
+using PWManager.interfaces;
+using PWManager.model;
+
+namespace PWManager.services;
 public sealed class CommunicationService : ICommunicationService
 {
     public string WriteWelcome()

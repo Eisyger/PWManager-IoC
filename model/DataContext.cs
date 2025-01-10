@@ -1,4 +1,6 @@
-namespace PWManager
+using PWManager.interfaces;
+
+namespace PWManager.model
 {
     public class DataContext : IDataContext
     {

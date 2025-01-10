@@ -1,4 +1,6 @@
-namespace PWManager;
+using PWManager.interfaces;
+
+namespace PWManager.services;
 
 public class PersistenceService(string path) : IPersistenceService
 {

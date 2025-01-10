@@ -1,3 +1,6 @@
+using PWManager.interfaces;
+using PWManager.model;
+
 namespace PWManager
 
 {

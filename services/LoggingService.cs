@@ -1,3 +1,5 @@
+using PWManager.interfaces;
+
 namespace PWManager.Services;
     public class LoggingService : ILoggingService
     {

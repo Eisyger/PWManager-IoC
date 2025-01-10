@@ -1,6 +1,8 @@
 using System.Data;
 using System.Runtime.Serialization;
 using System.Text.Json;
+using PWManager.interfaces;
+using PWManager.model;
 
 namespace PWManager;
 
