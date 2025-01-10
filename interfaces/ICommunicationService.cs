@@ -1,14 +1,12 @@
-using PWManager.interfaces;
 using PWManager.model;
 
-namespace PWManager
-
-{
+namespace PWManager.interfaces;
     public interface ICommunicationService
     {
         string WriteWelcome();
         string WriteRegister(Func<string, string, bool> validate, Func<string, string, string> token);
         string WriteLogin(Func<string, string, bool> validate, Func<string, string, string> token);
+        string WriteChangeUserData(Func<string, string, bool> validate, Func<string, string, string> token);
         (bool Success, DataContext? dataContext) WriteAdd();
         string WriteRemove();
         void WriteExit();
@@ -23,6 +21,6 @@ namespace PWManager
         ViewAccounts,  // Accounts ansehen (s)
         AddAccount,    // Account hinzufügen (a)
         RemoveAccount, // Account löschen (r)
+        ChangeUserData,// Änder die Logindaten (pwd)
         Exit           // Exit (e)
     }
-}

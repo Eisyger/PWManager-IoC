@@ -1,5 +1,4 @@
 using System.Data;
-using System.Runtime.Serialization;
 using System.Text.Json;
 using PWManager.interfaces;
 using PWManager.model;
@@ -14,21 +13,30 @@ internal class App(
     IPersistenceService persistenceService,
     IContextService ctxService)
 {
+    private string _token = string.Empty;
+
     public void Run()
     {
-            // Das Token steht über die Laufzeit zur Verfügung, entweder durch das Registrieren,
-            // oder durch den Login. Der Context wird mit dem Token ver- oder entschlüsselt.
-            var startUp = StartUp();
+        // Das Token steht über die Laufzeit zur Verfügung, entweder durch das Registrieren,
+        // oder durch den Login. Der Context wird mit dem Token ver- oder entschlüsselt.
+        loggingService.Log("Starte PWManager...");
+        var isLogin = StartUp();
 
-            // Lade Daten aus Savefile in _context
-            LoadData(startUp);
+        // Lade Daten aus Savefile in _context
+        loggingService.Log("Lade Daten aus der SaveFile...");
+        var loadedSuccessfully = LoadData();
+        if (!loadedSuccessfully && isLogin)
+        {
+            Console.WriteLine("Die Logindaten sind ungültig!\nBeende die Anwendung...");
+            return;
+        }
 
-            // Zeige Menu
-            ShowMenu(startUp);
-            
+        // Zeige Menu
+        loggingService.Log("State den Menu Loop...");
+        ShowMenu();
     }
 
-    private void ShowMenu((bool IsLogin, string Token) startUp)
+    private void ShowMenu()
     {
         while (true)
         {
@@ -44,7 +52,7 @@ internal class App(
                         if (result is { Success: true, dataContext: not null })
                         {
                             ctxService.Add(result.dataContext);
-                            Save(startUp.Token);
+                            Save(_token);
                         }
                         break;
                     case MenuAction.RemoveAccount:
@@ -82,10 +90,16 @@ internal class App(
                             loggingService.Log(e.Message);
                         }
                         break;
+                    case MenuAction.ChangeUserData:
+                        _token = com.WriteChangeUserData(
+                            (u, p) => u==p, // Validate - impl fehlt noch
+                            cypher.CreateToken); // Create Token
+                        Save(_token);
+                        break;
                     default:
                         var exception = new ArgumentOutOfRangeException
                         {
-                            Source = "Für eine MenuAction wurde keine case Definiert."
+                            Source = "Für eine MenuAction wurde kein case definiert."
                         };
                         exception.Data.Add("Action", state.Action);
                         throw exception;
@@ -93,34 +107,42 @@ internal class App(
         }
     }
 
-    private void LoadData((bool IsLogin, string Token) startUp)
+    /// <summary>
+    /// Lädt die Daten aus der SaveFile
+    /// </summary>
+    /// <returns>Sind Daten vorhanden, lade diese, return true.
+    /// Sind keine Daten vorhanden, return true → Erster Login ohne Daten.
+    /// Sind Daten vorhanden, aber Fehler beim Laden, return false → ungültige Login Daten.
+    /// </returns>
+    private bool LoadData()
     {
+        
         var saveFileData = persistenceService.LoadData();
-        switch (saveFileData.Success)
-        {
-            case true when startUp.IsLogin:
-                try
-                {
-                    var result = cypher.Decrypt(saveFileData.data, startUp.Token);
-                    ctxService.SetAll(JsonSerializer.Deserialize<List<DataContext>>(result.DecryptedText) 
-                                      ?? throw new SerializationException("Es konnten keine Daten aus dem SaveFile geladen werden."));
-                    
-                    loggingService.Log("Daten aus SaveFile geladen.");
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
 
-                break;
-            case false when startUp.IsLogin:
-                loggingService.Error("Keine Daten in SaveFile vorhanden.");
-                return;
+        if (saveFileData.Success)
+        {
+            try
+            {
+                var result = cypher.Decrypt(saveFileData.data, _token);
+                ctxService.SetAll(JsonSerializer.Deserialize<List<DataContext>>(result.DecryptedText) 
+                                  ?? throw new ArgumentNullException());
+                    
+                loggingService.Log("Daten aus SaveFile geladen.");
+            }
+            catch (Exception e)
+            {
+                loggingService.Log(e.Message);
+                return false;
+            }
         }
+        else
+        {
+            loggingService.Log("Keine Daten in SaveFile vorhanden.");
+        }
+        return true;
     }
 
-    private (bool IsLogin, string Token) StartUp()
+    private bool StartUp()
     {
         string? token;
         bool isLogin;
@@ -150,8 +172,8 @@ internal class App(
                             "Es ist noch keine Implementierung zur validierung der Eingaben vorhanden.");  
         }
         loggingService.Log($"Token wurde erstellt, mit einer Länge von {token.Length}");
-        
-        return (isLogin, token ?? throw new NoNullAllowedException("Token ist null."));   
+        _token = token ?? throw new NoNullAllowedException("Token ist null.");
+        return isLogin;
     }
 
     private void Save(string token)

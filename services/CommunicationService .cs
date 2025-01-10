@@ -51,6 +51,28 @@ public sealed class CommunicationService : ICommunicationService
 
         return token.Invoke(username, password);
     }
+
+    public string WriteChangeUserData(Func<string, string, bool> validate, Func<string, string, string> token)
+    {
+        var invalidInput = false;
+        string? username;
+        string? password;
+        do{
+            Console.Clear();
+            Console.WriteLine(invalidInput ? "UNGÜLTIGE EINGABE" : "ÄNDERE LOGIN-DATEN");
+            Console.WriteLine("Merke dir die neuen Logindaten gut!");
+            Console.WriteLine("Gib einen neuen Usernamen an:");
+            username = Console.ReadLine() ?? "";
+            Console.WriteLine("Gib ein neues Masterpasswort an:");
+            password = ValidationHelper.ReadPassword();
+            invalidInput = true;
+        } while (string.IsNullOrWhiteSpace(username)|| 
+                 string.IsNullOrWhiteSpace(password) || 
+                 !validate.Invoke(username, password));
+
+        return token.Invoke(username, password);
+    }
+
     public (bool Success, DataContext? dataContext) WriteAdd()
     {
         Console.WriteLine("ACCOUNT HINZUFÜGEN");
@@ -114,6 +136,7 @@ public sealed class CommunicationService : ICommunicationService
                               [c <account name>] Passwort des ausgewählten Accounts kopieren
                               [a] Account hinzufügen
                               [r] Account löschen
+                              [pwd] Logindaten ändern
                               [e] Beenden
                               ===========================
                               """);
@@ -142,6 +165,8 @@ public sealed class CommunicationService : ICommunicationService
                     return (MenuAction.AddAccount, string.Empty);
                 case "r":
                     return (MenuAction.RemoveAccount, string.Empty);
+                case "pwd":
+                    return (MenuAction.ChangeUserData, string.Empty);
                 case "e":
                     return (MenuAction.Exit, string.Empty);
                 default:
@@ -153,6 +178,7 @@ public sealed class CommunicationService : ICommunicationService
     public void WriteDump(IContextService contextService)
     {
         var contexts = contextService.GetAll();
+        var counter = 0;
         if (contexts.Count == 0)
         {
             Console.WriteLine("Keine Accountdaten vorhanden.");
@@ -161,7 +187,8 @@ public sealed class CommunicationService : ICommunicationService
         {
             foreach (var c in contextService.GetAll())
             {
-                Console.WriteLine(c.ToString());
+                counter++;
+                Console.WriteLine($"    | {counter}: {c.Name}");
             }
         }
         Console.ReadLine();

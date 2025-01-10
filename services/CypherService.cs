@@ -58,7 +58,7 @@ public class CypherService : ICypherService
         }
         catch (Exception e)
         {
-            Console.WriteLine("Fehler beim Entschlüsseln der Daten. Ungültiges Token, der Username oder das Passwort sind falsch. " + e.Message);
+            Console.WriteLine("Fehler beim Entschlüsseln der Daten. Ungültiges Token, der Username oder das Passwort sind falsch.\n" + e.Message);
             return (false, string.Empty);
         }
     }
