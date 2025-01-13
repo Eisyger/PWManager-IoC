@@ -177,7 +177,7 @@ public sealed class CommunicationService : ICommunicationService
     }
     public void WriteDump(IContextService contextService)
     {
-        var contexts = contextService.GetAll();
+        var contexts = contextService.ContextsList;
         var counter = 0;
         if (contexts.Count == 0)
         {
@@ -185,7 +185,7 @@ public sealed class CommunicationService : ICommunicationService
         }
         else
         {
-            foreach (var c in contextService.GetAll())
+            foreach (var c in contextService.ContextsList)
             {
                 counter++;
                 Console.WriteLine($"    | {counter}: {c.Name}");

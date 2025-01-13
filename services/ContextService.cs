@@ -5,37 +5,28 @@ namespace PWManager.services
 {
     public class ContextService : IContextService
     {
-        private List<DataContext> _context = [];
+        public List<DataContext>? ContextsList { get; set; } = [];
 
         public void Add(DataContext newContext)
         {
-            _context.Add(newContext);
+            ContextsList?.Add(newContext);
         }
         public void Remove(string name)
         {
-             _context.RemoveAll(x => x.Name == name);
+             ContextsList?.RemoveAll(x => x.Name == name);
         }
-
         public void Edit(string name, DataContext updatedContext)
         {
-             var index = _context.FindIndex(x => x.Name == name);
+            if (ContextsList == null) return;
+            var index = ContextsList.FindIndex(x => x.Name == name);
             if (index >= 0)
             {
-                _context[index] = updatedContext;
-            }        
+                ContextsList[index] = updatedContext;
+            }
         }
         public IDataContext GetContext(string name)
         {
-            return _context.FirstOrDefault(x => x.Name == name) ?? throw new ArgumentNullException();
-        }
-        public List<DataContext> GetAll()
-        {
-            return _context;
-        }
-
-        public void SetAll(List<DataContext> newContext)
-        {
-            _context = newContext;
+            return ContextsList?.FirstOrDefault(x => x.Name == name) ?? throw new ArgumentNullException();
         }
     }
 }

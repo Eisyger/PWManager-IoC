@@ -1,7 +1,5 @@
 using System.Data;
-using System.Text.Json;
 using PWManager.interfaces;
-using PWManager.model;
 using TextCopy;
 
 namespace PWManager;
@@ -14,6 +12,7 @@ internal class App(
     IContextService ctxService)
 {
     private string _token = string.Empty;
+    private IContextService _ctxService = ctxService;
 
     public void Run()
     {
@@ -45,21 +44,21 @@ internal class App(
                 switch (state.Action)
                 {
                     case MenuAction.ViewAccounts:
-                        com.WriteDump(ctxService);
+                        com.WriteDump(_ctxService);
                         break;
                     case MenuAction.AddAccount:
                         var result = com.WriteAdd();
                         if (result is { Success: true, dataContext: not null })
                         {
-                            ctxService.Add(result.dataContext);
+                            _ctxService.Add(result.dataContext);
                             Save(_token);
                         }
                         break;
                     case MenuAction.RemoveAccount:
                         var name = com.WriteRemove();
-                        if (ctxService.GetAll().Any(x => x.Name == name))
+                        if (_ctxService.ContextsList != null && _ctxService.ContextsList.Any(x => x.Name == name))
                         {
-                            ctxService.Remove(name);
+                            _ctxService.Remove(name);
                         }
                         else
                         {
@@ -72,7 +71,7 @@ internal class App(
                     case MenuAction.GetAccount:
                         try
                         {
-                            com.WriteDump(ctxService.GetContext(state.Args));
+                            com.WriteDump(_ctxService.GetContext(state.Args));
                         }
                         catch (ArgumentNullException e)
                         {
@@ -82,7 +81,7 @@ internal class App(
                     case MenuAction.CopyAccount:
                         try
                         {
-                            ClipboardService.SetText(ctxService.GetContext(state.Args).Password);
+                            ClipboardService.SetText(_ctxService.GetContext(state.Args).Password);
                         }
                         catch (ArgumentNullException e)
                         {
@@ -124,8 +123,7 @@ internal class App(
             try
             {
                 var result = cypher.Decrypt(saveFileData.data, _token);
-                ctxService.SetAll(JsonSerializer.Deserialize<List<DataContext>>(result.DecryptedText) 
-                                  ?? throw new ArgumentNullException());
+                _ctxService = result.contextService ?? throw new InvalidOperationException();
                     
                 loggingService.Log("Daten aus SaveFile geladen.");
             }
@@ -178,7 +176,7 @@ internal class App(
 
     private void Save(string token)
     {
-        var encryptedContext = cypher.Encrypt(JsonSerializer.Serialize(ctxService.GetAll()), token);
+        var encryptedContext = cypher.Encrypt(_ctxService, token);
         persistenceService.SaveData(encryptedContext);
     }
 }
