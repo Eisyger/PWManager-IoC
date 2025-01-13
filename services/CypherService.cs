@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using PWManager.interfaces;
+using PWManager.model;
 
 namespace PWManager.services;
 public class CypherService : ICypherService
@@ -25,26 +27,27 @@ public class CypherService : ICypherService
             throw;
         }
     }
-    public string Encrypt(string plaintext, string token)
+    public string Encrypt(IContextService ctxService, string token)
     {
+        
         using var aes = Aes.Create();
         (aes.Key, aes.IV) = GenerateKeyAndIV(token);
 
-        // Konvertiere den Text in ein Byte-Array
-        var plaintextBytes = Encoding.UTF8.GetBytes(plaintext);
+        // Serialisiere den Kontext und Konvertiere den Text in ein Byte-Array
+        var serializedData = JsonSerializer.Serialize(ctxService.ContextsList);
+        var plaintextBytes = Encoding.UTF8.GetBytes(serializedData);
 
         using var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
         var encryptedBytes = encryptor.TransformFinalBlock(plaintextBytes, 0, plaintextBytes.Length);
 
         // Verschlüsselten Text als Hexadezimal-String zurückgeben
-        return BitConverter.ToString(encryptedBytes).Replace("-", string.Empty);
+        return Convert.ToHexString(encryptedBytes);
     }
 
-    public (bool Success, string DecryptedText) Decrypt(string ciphertext, string token)
+    public (bool Success, IContextService? contextService) Decrypt(string ciphertext, string token)
     {
         using var aes = Aes.Create();
         (aes.Key, aes.IV) = GenerateKeyAndIV(token);
-
        
             // Konvertiere den Hexadezimal-verschlüsselten Text zurück in Bytes
             var encryptedBytes = ConvertHexStringToByteArray(ciphertext);
@@ -52,18 +55,24 @@ public class CypherService : ICypherService
             {
             using var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
             var decryptedBytes = decryptor.TransformFinalBlock(encryptedBytes, 0, encryptedBytes.Length);
+            
+            // Entschlüsselten Text in UTF8-String umwandeln
+            var decryptedText = Encoding.UTF8.GetString(decryptedBytes);
 
-            // Entschlüsselten Text als UTF8-String zurückgeben
-            return (true, Encoding.UTF8.GetString(decryptedBytes));
+            var ctx = new ContextService
+            {
+                ContextsList = JsonSerializer.Deserialize<List<DataContext>>(decryptedText)
+            };
+            return (true, ctx);
         }
         catch (Exception e)
         {
             Console.WriteLine("Fehler beim Entschlüsseln der Daten. Ungültiges Token, der Username oder das Passwort sind falsch.\n" + e.Message);
-            return (false, string.Empty);
+            return (false, null);
         }
     }
 
-// Hilfsmethode: Konvertiere Hexadezimal-String in Byte-Array
+    // Hilfsmethode: Konvertiere Hexadezimal-String in Byte-Array
     private static byte[] ConvertHexStringToByteArray(string hex)
     {
         if (hex.Length % 2 != 0)
