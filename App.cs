@@ -1,5 +1,6 @@
 using System.Data;
 using PWManager.interfaces;
+using PWManager.services;
 using TextCopy;
 
 namespace PWManager;
@@ -51,7 +52,7 @@ internal class App(
                         if (result is { Success: true, dataContext: not null })
                         {
                             _ctxService.Add(result.dataContext);
-                            Save(_token);
+                            Save();
                         }
                         break;
                     case MenuAction.RemoveAccount:
@@ -93,7 +94,7 @@ internal class App(
                         _token = com.WriteChangeUserData(
                             (u, p) => u==p, // Validate - impl fehlt noch
                             cypher.CreateToken); // Create Token
-                        Save(_token);
+                        Save();
                         break;
                     default:
                         var exception = new ArgumentOutOfRangeException
@@ -122,24 +123,22 @@ internal class App(
         {
             try
             {
-                var result = cypher.Decrypt(saveFileData.data, _token);
-                _ctxService = result.contextService ?? throw new InvalidOperationException();
-                    
+                _ctxService = cypher.Decrypt<ContextService>(saveFileData.data, _token);
+                
                 loggingService.Log("Daten aus SaveFile geladen.");
             }
             catch (Exception e)
             {
-                loggingService.Log(e.Message);
+                loggingService.Error(e.Message);
                 return false;
             }
         }
         else
         {
-            loggingService.Log("Keine Daten in SaveFile vorhanden.");
+            loggingService.Warning("Keine Daten in SaveFile vorhanden.");
         }
         return true;
     }
-
     private bool StartUp()
     {
         string? token;
@@ -173,10 +172,8 @@ internal class App(
         _token = token ?? throw new NoNullAllowedException("Token ist null.");
         return isLogin;
     }
-
-    private void Save(string token)
+    private void Save()
     {
-        var encryptedContext = cypher.Encrypt(_ctxService, token);
-        persistenceService.SaveData(encryptedContext);
+        persistenceService.SaveData(cypher.Encrypt(_ctxService, _token));
     }
 }
