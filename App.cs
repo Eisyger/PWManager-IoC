@@ -9,8 +9,10 @@ internal class App(
     ILoggingService loggingService, 
     ICommunicationService com, 
     ICypherService cypher,
-    IPersistenceService persistenceService,
-    IContextService ctxService)
+    PersistenceService persistenceService,
+    SaltPersistenceService saltPersistenceService,
+    IContextService ctxService,
+    IAuthenticationService authService)
 {
     private string _token = string.Empty;
     private IContextService _ctxService = ctxService;
@@ -24,8 +26,8 @@ internal class App(
 
         // Lade Daten aus Savefile in _context
         loggingService.Log("Lade Daten aus der SaveFile...");
-        var loadedSuccessfully = LoadData();
-        if (!loadedSuccessfully && isLogin)
+        var hasLoaded = LoadData();
+        if (!hasLoaded && isLogin)
         {
             Console.WriteLine("Die Logindaten sind ungültig!\nBeende die Anwendung...");
             return;
@@ -147,14 +149,14 @@ internal class App(
 
         com.WriteWelcome();
         
-        if (File.Exists(persistenceService.GetPath()))
+        if (File.Exists(persistenceService.GetPath()) && File.Exists(saltPersistenceService.GetPath()))
         {
             loggingService.Log("Starte Login.");  
             
             isLogin = true;
             token = com.WriteLogin(
-                (u, p) => u==p, // Validate - impl fehlt noch
-                cypher.CreateToken); // Create Token
+                authService.Authenticate(), // Validate - impl fehlt noch
+                authService.GenerateToken()); // Create Token
            
             loggingService.Warning("Username und Passwort sind gleich! " +
                             "Es ist noch keine Implementierung zur validierung der Eingaben vorhanden.");   
@@ -164,7 +166,7 @@ internal class App(
             isLogin = false;
             token = com.WriteRegister(
                 (u, p) => u==p, // Validate - impl fehlt noch
-                cypher.CreateToken); // Create Token
+                authService.GenerateToken()); // Create Token
             loggingService.Warning("Username und Passwort sind gleich! " +
                             "Es ist noch keine Implementierung zur validierung der Eingaben vorhanden.");  
         }

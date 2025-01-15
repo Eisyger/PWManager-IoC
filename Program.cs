@@ -12,9 +12,11 @@ class Program
     {
         
         var path = "data.txt";
+        var saltPath = "salt.txt";
         if (args.Length > 0 && Path.Exists(args[0]))
         {
             path = Path.Combine(args[0], path);
+            saltPath = Path.Combine(args[0], path);
         }
         
         // Erstelle IoC-Container
@@ -24,7 +26,10 @@ class Program
             .AddSingleton<ICypherService, CypherService>()
             .AddSingleton<IPersistenceService, PersistenceService>(serviceProvider => 
                 new PersistenceService(Path.Combine(Environment.CurrentDirectory, path)))
+            .AddSingleton<IPersistenceService, SaltPersistenceService>(serviceProvider => 
+                new SaltPersistenceService(Path.Combine(Environment.CurrentDirectory, saltPath)))
             .AddSingleton<IContextService, ContextService>()
+            .AddSingleton<IAuthenticationService, AuthenticationService>()
             .AddSingleton<App>()  
             .BuildServiceProvider();
         
