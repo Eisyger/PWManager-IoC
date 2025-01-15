@@ -15,7 +15,10 @@ public class CypherService : ICypherService
     /// <param name="token">Ein geheimer Schlüssel, der für die Verschlüsselung verwendet wird.</param>
     /// <returns>Ein Hexadezimal-String, der die verschlüsselten Daten darstellt.</returns>
     /// <exception cref="ArgumentNullException">
-    /// Wird ausgelöst, wenn <paramref name="context"/> oder <paramref name="token"/> null oder leer ist.
+    /// Wird ausgelöst, wenn <paramref name="context"/> oder <paramref name="token"/> null, leer oder ungültig ist.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Wird ausgelöst, wenn <paramref name="token"/> leer oder ungültig ist.
     /// </exception>
     /// <remarks>
     /// Diese Methode serialisiert das Eingabeobjekt in JSON, verschlüsselt es mit dem AES-Algorithmus und gibt 
@@ -23,19 +26,29 @@ public class CypherService : ICypherService
     /// </remarks>
     public string Encrypt<T>(T context, string token)
     {
+        // Überprüfen, ob der Kontext null ist (nur relevant für Referenztypen)
+        if (context == null)
+            throw new ArgumentNullException(nameof(context), "Das zu verschlüsselnde Objekt darf nicht null sein.");
+        
+        // Überprüfen, ob der Token null oder leer ist
+        if (string.IsNullOrEmpt(token))
+            throw new ArgumentException("Der Verschlüsselungstoken darf nicht null, leer oder nur Leerzeichen sein.", nameof(token));
+    
+        // AES erstellen und Schlüssel sowie Initialisierungsvektor generieren
         using var aes = Aes.Create();
         (aes.Key, aes.IV) = GenerateKeyAndIv(token);
-
-        // Serialisiere den Kontext und Konvertiere den Text in ein Byte-Array
+    
+        // Serialisiere den Kontext und konvertiere den Text in ein Byte-Array
         var serializedData = JsonSerializer.Serialize(context);
         var plaintextBytes = Encoding.UTF8.GetBytes(serializedData);
-
+    
         using var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
         var encryptedBytes = encryptor.TransformFinalBlock(plaintextBytes, 0, plaintextBytes.Length);
-
+    
         // Verschlüsselten Text als Hexadezimal-String zurückgeben
         return Convert.ToHexString(encryptedBytes);
     }
+
     
     /// <summary>
     /// Entschlüsselt einen Hexadezimal-String, der mit der <see cref="Encrypt{T}"/>-Methode verschlüsselt wurde, 
@@ -99,7 +112,7 @@ public class CypherService : ICypherService
     /// <param name="password">Das Passwort, das für die Token-Erstellung verwendet wird.</param>
     /// <returns>Ein hexadezimaler String, der das generierte Token darstellt.</returns>
     /// <exception cref="ArgumentException">
-    /// Wird ausgelöst, wenn <paramref name="username"/> oder <paramref name="password"/> null oder leer sind.
+    /// Wird ausgelöst, wenn <paramref name="username"/> oder <paramref name="password"/> null, leer oder ungültig ist.
     /// </exception>
     /// <remarks>
     /// Die Methode kombiniert den Benutzernamen und das Passwort mit einem statischen Salt, um eine Eingabe 
@@ -110,21 +123,30 @@ public class CypherService : ICypherService
     /// </remarks>
     public string CreateToken(string username, string password)
     {
-        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             throw new ArgumentException("Der Username darf nicht null oder leer sein.");
-        if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(password))
+        if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(password))
             throw new ArgumentException("Das Passwort darf nicht null oder leer sein.");
         
-        // TODO Statischer Salt wert ist nicht gut, daher Salt erzeugen und ind SaveFile speichern
-        // TODO Beim laden dann den Salt laden und zum Entschlüsseln verwenden.
-        const string salt = "984!489///>(8)";
+        // TODO Statischer Salt wert ist nicht gut, daher Salt erzeugen und in SaveFile speichern
+        // TODO Beim laden der SaveFile erste den Salt laden und dann zum Entschlüsseln verwenden.
+        var salt = GenerateSalt();
+
         var combined = username + salt + password;
         
         // Hash erstellen und in Hex-Format umwandeln
         var hashBytes = SHA512.HashData(Encoding.UTF8.GetBytes(combined));
         return Convert.ToHexStringLower(hashBytes);
     }
-    
+
+    private static string GenerateSalt()
+    {
+        using var rng = RandomNumberGenerator.Create();
+        var byteSalt = new byte[16];
+        rng.GetBytes(byteSalt);
+        
+        return Convert.ToBase64String(byteSalt);
+    }
     
     private static byte[] ConvertHexStringToByteArray(string hex)
     {
@@ -140,7 +162,7 @@ public class CypherService : ICypherService
     }
     private static (byte[] key, byte[] iv) GenerateKeyAndIv(string token)
     {
-        if (string.IsNullOrEmpty(token))
+        if (string.IsNullOrWhiteSpace(token))
             throw new ArgumentException("Das Token darf nicht null oder leer sein.");
 
         var key = new byte[16];
