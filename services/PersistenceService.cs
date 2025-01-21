@@ -6,6 +6,7 @@ public class PersistenceService(string path) : IPersistenceService
 {
     public (bool Success, string data) LoadData()
     {
+        // TODO Exceptions werfen!
         if (!File.Exists(path))
             return (false, string.Empty);
         

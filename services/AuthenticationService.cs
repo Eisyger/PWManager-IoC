@@ -3,12 +3,13 @@ using PWManager.interfaces;
 namespace PWManager.services;
 public sealed class AuthenticationService : IAuthenticationService
 {
-    public string Token {get;}
-    public string Salt {get;}
+    private string _salt = "";    
+    private SaltPersistenceService _saltService;
+    public string Salt => _salt;
 
-    public AuthenticationService()
+    public AuthenticationService(SaltPersistenceService saltService)
     {
-        Salt = GenerateSalt();
+        _saltService = saltService;       
     }
 
     private string GenerateSalt()
@@ -44,7 +45,7 @@ public sealed class AuthenticationService : IAuthenticationService
         
         // TODO Statischer Salt wert ist nicht gut, daher Salt erzeugen und in SaveFile speichern
         // TODO Beim laden der SaveFile erste den Salt laden und dann zum Entschlüsseln verwenden.       
-
+        _salt = GenerateSalt();        
         var combined = username + _salt + password;
         
         // Hash erstellen und in Hex-Format umwandeln

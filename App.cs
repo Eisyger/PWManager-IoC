@@ -118,26 +118,27 @@ internal class App(
     /// </returns>
     private bool LoadData()
     {
-        
-        var saveFileData = persistenceService.LoadData();
-
-        if (saveFileData.Success)
+        try
         {
-            try
+        var saveFileData = persistenceService.LoadData();
+        var salt = saltPersistenceService.LoadData();        
+
+            if (saveFileData.Success && salt.Success)
             {
-                _ctxService = cypher.Decrypt<ContextService>(saveFileData.data, _token);
-                
+                // TODO Hier muss das Token geprüft erstellt werden aus salt, username und pwd           
+                _ctxService = cypher.Decrypt<ContextService>(saveFileData.data, _token);                
                 loggingService.Log("Daten aus SaveFile geladen.");
+                        
             }
-            catch (Exception e)
+            else
             {
-                loggingService.Error(e.Message);
-                return false;
+                loggingService.Warning("Keine Daten in SaveFile vorhanden.");
             }
         }
-        else
+        catch (Exception e)
         {
-            loggingService.Warning("Keine Daten in SaveFile vorhanden.");
+            loggingService.Error(e.Message);
+            return false;
         }
         return true;
     }
@@ -177,5 +178,6 @@ internal class App(
     private void Save()
     {
         persistenceService.SaveData(cypher.Encrypt(_ctxService, _token));
+        saltPersistenceService.SaveData(authService.Salt);
     }
 }

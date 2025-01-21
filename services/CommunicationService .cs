@@ -9,7 +9,7 @@ public sealed class CommunicationService : ICommunicationService
         Console.WriteLine("Willkommen!");
         return "";
     }
-    
+
     public string WriteRegister(Func<string, string, bool> validate, Func<string, string, string> token)
     {
         var invalidInput = false;
@@ -31,6 +31,7 @@ public sealed class CommunicationService : ICommunicationService
 
         return token.Invoke(username, password);
     }
+
     public string WriteLogin(Func<string, string, bool> validate, Func<string, string, string> token)
     {
         var invalidInput = false;
@@ -104,6 +105,7 @@ public sealed class CommunicationService : ICommunicationService
         
         return (true, ctx);
     }
+
     public string WriteRemove()
     {
         Console.WriteLine("ACCOUNT LÖSCHEN");
@@ -117,10 +119,12 @@ public sealed class CommunicationService : ICommunicationService
         Console.WriteLine("Der Accountname ist ein Pflichtfeld.");
         return "";
     }
+
     public void WriteExit()
     {
         Console.WriteLine("Anwendung beendet.");
     }
+
     public (MenuAction Action, string Args) WriteMenu()
     {
         var validInput = true;
@@ -175,6 +179,7 @@ public sealed class CommunicationService : ICommunicationService
             }
         }
     }
+
     public void WriteDump(IContextService contextService)
     {
         var contexts = contextService.ContextsList;
@@ -198,6 +203,5 @@ public sealed class CommunicationService : ICommunicationService
     {
         Console.WriteLine(context.ToString());
         Console.ReadLine();
-    }
-   
+    }   
 }
