@@ -45,7 +45,7 @@ public class CypherService : ICypherService
         using var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
         var encryptedBytes = encryptor.TransformFinalBlock(plaintextBytes, 0, plaintextBytes.Length);
     
-        // Verschlüsselten Text als Hexadezimal-String zurückgeben
+        // Verschlüsselten Text als Hexadezimal-String        
         return Convert.ToHexString(encryptedBytes);
     }
     
@@ -71,6 +71,8 @@ public class CypherService : ICypherService
     {
         if (string.IsNullOrWhiteSpace(ciphertext))
             throw new ArgumentException("Der verschlüsselte Text (ciphertext) darf nicht null oder leer sein.", nameof(ciphertext));
+        if (ciphertext.Length % 2 != 0)
+            throw new ArgumentException("Ungültiger Hexadezimal-String.");
         if (string.IsNullOrWhiteSpace(token))
             throw new ArgumentException("Das Token darf nicht null oder leer sein.", nameof(token));
 
@@ -106,10 +108,7 @@ public class CypherService : ICypherService
     
     
     private static byte[] ConvertHexStringToByteArray(string hex)
-    {
-        if (hex.Length % 2 != 0)
-            throw new ArgumentException("Ungültiger Hexadezimal-String.");
-
+    { 
         var byteArray = new byte[hex.Length / 2];
         for (var i = 0; i < byteArray.Length; i++)
         {
@@ -119,10 +118,7 @@ public class CypherService : ICypherService
     }
     
     private static (byte[] key, byte[] iv) GenerateKeyAndIv(string token)
-    {
-        if (string.IsNullOrWhiteSpace(token))
-            throw new ArgumentException("Das Token darf nicht null oder leer sein.");
-
+    {        
         var key = new byte[16];
         var iv = new byte[16];
         
