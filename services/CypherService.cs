@@ -22,7 +22,8 @@ public class CypherService : ICypherService
     /// </exception>
     /// <remarks>
     /// Diese Methode serialisiert das Eingabeobjekt in JSON, verschlüsselt es mit dem AES-Algorithmus und gibt 
-    /// den verschlüsselten Text als Hexadezimal-String zurück.
+    /// den verschlüsselten Text als Hexadezimal-String zurück. Bei Fehlern in der Serialisierung oder Verschlüsselung 
+    /// wird eine entsprechende Ausnahme ausgelöst.
     /// </remarks>
     public string Encrypt<T>(T context, string token)
     {
@@ -31,23 +32,35 @@ public class CypherService : ICypherService
             throw new ArgumentNullException(nameof(context), "Das zu verschlüsselnde Objekt darf nicht null sein.");
         
         // Überprüfen, ob der Token null oder leer ist
-        if (string.IsNullOrEmpt(token))
+        if (string.IsNullOrEmpty(token))
             throw new ArgumentException("Der Verschlüsselungstoken darf nicht null, leer oder nur Leerzeichen sein.", nameof(token));
-    
+        
         // AES erstellen und Schlüssel sowie Initialisierungsvektor generieren
         using var aes = Aes.Create();
         (aes.Key, aes.IV) = GenerateKeyAndIv(token);
-    
+        
         // Serialisiere den Kontext und konvertiere den Text in ein Byte-Array
-        var serializedData = JsonSerializer.Serialize(context);
-        var plaintextBytes = Encoding.UTF8.GetBytes(serializedData);
-    
-        using var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
-        var encryptedBytes = encryptor.TransformFinalBlock(plaintextBytes, 0, plaintextBytes.Length);
-    
-        // Verschlüsselten Text als Hexadezimal-String        
-        return Convert.ToHexString(encryptedBytes);
+        try
+        {
+            var serializedData = JsonSerializer.Serialize(context);
+            var plaintextBytes = Encoding.UTF8.GetBytes(serializedData);
+
+            using var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+            var encryptedBytes = encryptor.TransformFinalBlock(plaintextBytes, 0, plaintextBytes.Length);
+            
+            // Verschlüsselten Text als Hexadezimal-String        
+            return Convert.ToHexString(encryptedBytes);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException("Fehler bei der Serialisierung des Kontextes.", ex);
+        }
+        catch (Exception e)
+        {
+            throw new InvalidOperationException($"Ein unerwarteter Fehler ist aufgetreten. {e.GetType()} {e.Message}", e);
+        }
     }
+
     
     /// <summary>
     /// Entschlüsselt einen Hexadezimal-String, der mit der <see cref="Encrypt{T}"/>-Methode verschlüsselt wurde, 
