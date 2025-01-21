@@ -1,18 +1,11 @@
+using System.Security.Cryptography;
+using System.Text;
 using PWManager.interfaces;
 
 namespace PWManager.services;
 public sealed class AuthenticationService : IAuthenticationService
 {
-    private string _salt = "";    
-    private SaltPersistenceService _saltService;
-    public string Salt => _salt;
-
-    public AuthenticationService(SaltPersistenceService saltService)
-    {
-        _saltService = saltService;       
-    }
-
-    private string GenerateSalt()
+    public string GenerateSalt()
     {
         using var rng = RandomNumberGenerator.Create();
         var byteSalt = new byte[16];
@@ -42,19 +35,30 @@ public sealed class AuthenticationService : IAuthenticationService
             throw new ArgumentException("Der Username darf nicht null oder leer sein.");
         if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(password))
             throw new ArgumentException("Das Passwort darf nicht null oder leer sein.");
-        
-        // TODO Statischer Salt wert ist nicht gut, daher Salt erzeugen und in SaveFile speichern
-        // TODO Beim laden der SaveFile erste den Salt laden und dann zum Entschlüsseln verwenden.       
-        _salt = GenerateSalt();        
-        var combined = username + _salt + password;
+              
+        var combined = username + GenerateSalt() + password;
         
         // Hash erstellen und in Hex-Format umwandeln
         var hashBytes = SHA512.HashData(Encoding.UTF8.GetBytes(combined));
         return Convert.ToHexStringLower(hashBytes);
     }
 
-    public bool Authenticate(string user, string pwd, string salt)
+    public string GetToken(string user, string pwd, string salt)
     {
+        return GenerateCompareToken(user, pwd, salt);
+    }
+    
+    private static string GenerateCompareToken(string username, string password, string salt)
+    {
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            throw new ArgumentException("Der Username darf nicht null oder leer sein.");
+        if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(password))
+            throw new ArgumentException("Das Passwort darf nicht null oder leer sein.");
+              
+        var combined = username + salt + password;
         
+        // Hash erstellen und in Hex-Format umwandeln
+        var hashBytes = SHA512.HashData(Encoding.UTF8.GetBytes(combined));
+        return Convert.ToHexStringLower(hashBytes);
     }
 }

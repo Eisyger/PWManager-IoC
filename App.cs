@@ -9,7 +9,7 @@ internal class App(
     ILoggingService loggingService, 
     ICommunicationService com, 
     ICypherService cypher,
-    PersistenceService persistenceService,
+    IPersistenceService persistenceService,
     SaltPersistenceService saltPersistenceService,
     IContextService ctxService,
     IAuthenticationService authService)
@@ -23,17 +23,18 @@ internal class App(
         // oder durch den Login. Der Context wird mit dem Token ver- oder entschlüsselt.
         loggingService.Log("Starte PWManager...");
         var isLogin = StartUp();
-
-        // Lade Daten aus Savefile in _context
+        loggingService.Log(isLogin ? "Login ausgeführt." : "Registrierung ausgeführt.");
+        
         loggingService.Log("Lade Daten aus der SaveFile...");
         var hasLoaded = LoadData();
+        loggingService.Log(hasLoaded ? "Daten aus SaveFile geladen." : "Es wurden keine Daten aus SaveFile geladen.");
+        
         if (!hasLoaded && isLogin)
         {
             Console.WriteLine("Die Logindaten sind ungültig!\nBeende die Anwendung...");
             return;
         }
-
-        // Zeige Menu
+        
         loggingService.Log("State den Menu Loop...");
         ShowMenu();
     }
@@ -95,7 +96,7 @@ internal class App(
                     case MenuAction.ChangeUserData:
                         _token = com.WriteChangeUserData(
                             (u, p) => u==p, // Validate - impl fehlt noch
-                            cypher.CreateToken); // Create Token
+                            authService.GenerateToken); // Create Token
                         Save();
                         break;
                     default:
@@ -120,20 +121,10 @@ internal class App(
     {
         try
         {
-        var saveFileData = persistenceService.LoadData();
-        var salt = saltPersistenceService.LoadData();        
-
-            if (saveFileData.Success && salt.Success)
-            {
-                // TODO Hier muss das Token geprüft erstellt werden aus salt, username und pwd           
-                _ctxService = cypher.Decrypt<ContextService>(saveFileData.data, _token);                
-                loggingService.Log("Daten aus SaveFile geladen.");
-                        
-            }
-            else
-            {
-                loggingService.Warning("Keine Daten in SaveFile vorhanden.");
-            }
+            var saveFileData = persistenceService.LoadData();
+                       
+            _ctxService = cypher.Decrypt<ContextService>(saveFileData, _token);                
+            loggingService.Log("Daten aus SaveFile geladen.");
         }
         catch (Exception e)
         {
@@ -155,9 +146,8 @@ internal class App(
             loggingService.Log("Starte Login.");  
             
             isLogin = true;
-            token = com.WriteLogin(
-                authService.Authenticate(), // Validate - impl fehlt noch
-                authService.GenerateToken()); // Create Token
+            token = com.WriteLogin((u, p) => u == p, // Validate - impl fehlt noch
+                (u, p) => authService.GetToken(u, p, saltPersistenceService.LoadData())); // Create Token
            
             loggingService.Warning("Username und Passwort sind gleich! " +
                             "Es ist noch keine Implementierung zur validierung der Eingaben vorhanden.");   
@@ -166,8 +156,8 @@ internal class App(
         {
             isLogin = false;
             token = com.WriteRegister(
-                (u, p) => u==p, // Validate - impl fehlt noch
-                authService.GenerateToken()); // Create Token
+                (u, p) => u == p, // Validate - impl fehlt noch
+                authService.GenerateToken);
             loggingService.Warning("Username und Passwort sind gleich! " +
                             "Es ist noch keine Implementierung zur validierung der Eingaben vorhanden.");  
         }
@@ -177,7 +167,10 @@ internal class App(
     }
     private void Save()
     {
+        // TODO Das _token wurde erstellt mit dem Salt der aus der Datei gelesen wurde
+        // TODO wird nun der Salt neu erstellt, dann muss auch das Token neu erstellt werden, dies geht jedoch nur 
+        // TODO durch den Usernamen und das PW
         persistenceService.SaveData(cypher.Encrypt(_ctxService, _token));
-        saltPersistenceService.SaveData(authService.Salt);
+        saltPersistenceService.SaveData(authService.GenerateSalt());
     }
 }

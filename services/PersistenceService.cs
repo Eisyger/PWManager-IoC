@@ -4,6 +4,8 @@ namespace PWManager.services;
 
 public class PersistenceService(string path) : IPersistenceService
 {
+    private readonly string _path = path ?? throw new ArgumentNullException(nameof(path));
+
     /// <summary>
     /// Lädt den Inhalt einer Datei und gibt ihn als String zurück.
     /// </summary>
@@ -14,11 +16,11 @@ public class PersistenceService(string path) : IPersistenceService
     /// <exception cref="Exception">Wird ausgelöst, wenn ein unerwarteter Fehler auftritt.</exception>
     public string LoadData()
     {
-        if (!File.Exists(path))
+        if (!File.Exists(_path))
             throw new FileNotFoundException("Datei wurde nicht gefunden.");
         try
         {
-            return File.ReadAllText(path);
+            return File.ReadAllText(_path);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -48,7 +50,7 @@ public class PersistenceService(string path) : IPersistenceService
     {
         try
         {
-            File.WriteAllText(path, data);
+            File.WriteAllText(_path, data);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -69,7 +71,7 @@ public class PersistenceService(string path) : IPersistenceService
 
     public string GetPath()
     {
-        return path;
+        return _path;
     }
 }
     

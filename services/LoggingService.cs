@@ -9,16 +9,16 @@ namespace PWManager.Services;
 
     public virtual void Error(string message)
         {
-            Console.WriteLine("Error: " + message);
+            Console.WriteLine("Error>>: " + message);
         }
 
     public virtual void Log(string message)
         {
-            Console.WriteLine(">>: " + message);
+            Console.WriteLine("Log>>: " + message);
         }
 
     public virtual void Warning(string message)
         {
-            Console.WriteLine("Warning: " + message);
+            Console.WriteLine("Warning>>: " + message);
         }
     }

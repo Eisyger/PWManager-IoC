@@ -184,13 +184,13 @@ public sealed class CommunicationService : ICommunicationService
     {
         var contexts = contextService.ContextsList;
         var counter = 0;
-        if (contexts.Count == 0)
+        if (contexts == null || contexts.Count == 0)
         {
             Console.WriteLine("Keine Accountdaten vorhanden.");
         }
         else
         {
-            foreach (var c in contextService.ContextsList)
+            foreach (var c in contexts)
             {
                 counter++;
                 Console.WriteLine($"    | {counter}: {c.Name}");

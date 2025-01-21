@@ -26,8 +26,7 @@ class Program
             .AddSingleton<ICypherService, CypherService>()
             .AddSingleton<IPersistenceService, PersistenceService>(serviceProvider => 
                 new PersistenceService(Path.Combine(Environment.CurrentDirectory, path)))
-            .AddSingleton<IPersistenceService, SaltPersistenceService>(serviceProvider => 
-                new SaltPersistenceService(Path.Combine(Environment.CurrentDirectory, saltPath)))
+            .AddSingleton(new SaltPersistenceService(Path.Combine(Environment.CurrentDirectory, saltPath)))
             .AddSingleton<IContextService, ContextService>()
             .AddSingleton<IAuthenticationService, AuthenticationService>()
             .AddSingleton<App>()  
