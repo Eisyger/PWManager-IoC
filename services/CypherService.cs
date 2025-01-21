@@ -80,7 +80,7 @@ public class CypherService : ICypherService
         (aes.Key, aes.IV) = GenerateKeyAndIv(token);
 
         // Konvertiere den Hexadezimal-verschlüsselten Text zurück in Bytes
-        var encryptedBytes = ConvertHexStringToByteArray(ciphertext);
+        var encryptedBytes = Convert.FromHexString(ciphertext);
 
         try
         {
@@ -104,17 +104,6 @@ public class CypherService : ICypherService
         {
             throw new InvalidOperationException($"Ein unerwarteter Fehler ist aufgetreten. {e.GetType()} {e.Message}", e);
         }
-    }
-    
-    
-    private static byte[] ConvertHexStringToByteArray(string hex)
-    { 
-        var byteArray = new byte[hex.Length / 2];
-        for (var i = 0; i < byteArray.Length; i++)
-        {
-            byteArray[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
-        }
-        return byteArray;
     }
     
     private static (byte[] key, byte[] iv) GenerateKeyAndIv(string token)
