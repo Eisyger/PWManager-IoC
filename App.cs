@@ -170,7 +170,7 @@ internal class App(
         // TODO Das _token wurde erstellt mit dem Salt der aus der Datei gelesen wurde
         // TODO wird nun der Salt neu erstellt, dann muss auch das Token neu erstellt werden, dies geht jedoch nur 
         // TODO durch den Usernamen und das PW
-        persistenceService.SaveData(cypher.Encrypt(_ctxService, _token));
-        saltPersistenceService.SaveData(authService.GenerateSalt());
+        persistenceService.SaveData(cypher.Encrypt(_ctxService, authService.GenerateToken()));
+        saltPersistenceService.SaveData(authService.Salt);
     }
 }

@@ -2,8 +2,10 @@ namespace PWManager.interfaces
 {
     public interface IAuthenticationService
     {
-        string GenerateSalt();
-        string GenerateToken(string user, string pwd);
-        string GetToken(string user, string pwd, string salt);
+        string Salt {get;}
+        string Token {get;}        
+        string CreateToken();
+        string CreateToken(string user, string pwd);
+        string CreateToken(string user, string pwd, string salt);
     }
 }
