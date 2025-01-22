@@ -13,8 +13,7 @@ internal class App(
     SaltPersistenceService saltPersistenceService,
     IContextService ctxService,
     IAuthenticationService authService)
-{
-    private string _token = string.Empty;
+{    
     private IContextService _ctxService = ctxService;
 
     public void Run()
@@ -94,7 +93,7 @@ internal class App(
                         }
                         break;
                     case MenuAction.ChangeUserData:
-                        _token = com.WriteChangeUserData(
+                            com.WriteChangeUserData(
                             (u, p) => u==p, // Validate - impl fehlt noch
                             authService.GenerateToken); // Create Token
                         Save();
@@ -123,7 +122,7 @@ internal class App(
         {
             var saveFileData = persistenceService.LoadData();
                        
-            _ctxService = cypher.Decrypt<ContextService>(saveFileData, _token);                
+            _ctxService = cypher.Decrypt<ContextService>(saveFileData, authService.Token);                
             loggingService.Log("Daten aus SaveFile geladen.");
         }
         catch (Exception e)
@@ -146,8 +145,8 @@ internal class App(
             loggingService.Log("Starte Login.");  
             
             isLogin = true;
-            token = com.WriteLogin((u, p) => u == p, // Validate - impl fehlt noch
-                (u, p) => authService.GetToken(u, p, saltPersistenceService.LoadData())); // Create Token
+            com.WriteLogin((u, p) => u == p, // Validate - impl fehlt noch
+                (u, p) => authService.RecreateToken(u, p, saltPersistenceService.LoadData())); // Create Token
            
             loggingService.Warning("Username und Passwort sind gleich! " +
                             "Es ist noch keine Implementierung zur validierung der Eingaben vorhanden.");   
@@ -155,14 +154,12 @@ internal class App(
         else 
         {
             isLogin = false;
-            token = com.WriteRegister(
+            com.WriteRegister(
                 (u, p) => u == p, // Validate - impl fehlt noch
-                authService.GenerateToken);
+                authService.CreateRandomToken);
             loggingService.Warning("Username und Passwort sind gleich! " +
                             "Es ist noch keine Implementierung zur validierung der Eingaben vorhanden.");  
-        }
-        loggingService.Log($"Token wurde erstellt, mit einer Länge von {token.Length}");
-        _token = token ?? throw new NoNullAllowedException("Token ist null.");
+        } 
         return isLogin;
     }
     private void Save()
@@ -170,7 +167,7 @@ internal class App(
         // TODO Das _token wurde erstellt mit dem Salt der aus der Datei gelesen wurde
         // TODO wird nun der Salt neu erstellt, dann muss auch das Token neu erstellt werden, dies geht jedoch nur 
         // TODO durch den Usernamen und das PW
-        persistenceService.SaveData(cypher.Encrypt(_ctxService, authService.GenerateToken()));
+        persistenceService.SaveData(cypher.Encrypt(_ctxService, authService.CreateSaveToken()));
         saltPersistenceService.SaveData(authService.Salt);
     }
 }

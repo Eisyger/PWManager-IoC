@@ -4,8 +4,8 @@ namespace PWManager.interfaces
     {
         string Salt {get;}
         string Token {get;}        
-        string CreateToken();
-        string CreateToken(string user, string pwd);
-        string CreateToken(string user, string pwd, string salt);
+        string CreateSaveToken();
+        string CreateRandomToken(string user, string pwd);
+        string RecreateToken(string user, string pwd, string salt);
     }
 }

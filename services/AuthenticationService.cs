@@ -14,7 +14,7 @@ public sealed class AuthenticationService : IAuthenticationService
     // Properties mit Validierung
     public string Username
     {
-        get => _username ?? throw new InvalidOperationException("Der Benutzername wurde nicht gesetzt.");
+        get => _username ?? throw new InvalidOperationException("Der Benutzername wurde noch nicht gesetzt.");
         set
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -25,7 +25,7 @@ public sealed class AuthenticationService : IAuthenticationService
 
     public string Password
     {
-        get => _password ?? throw new InvalidOperationException("Das Passwort wurde nicht gesetzt.");
+        get => _password ?? throw new InvalidOperationException("Das Passwort wurde noch nicht gesetzt.");
         set
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -48,17 +48,21 @@ public sealed class AuthenticationService : IAuthenticationService
 
     private string GenerateToken(string username, string password, string salt)
     {
-        var combined = username + salt password;
+        Username = username;
+        Password = password;
+        Salt = salt;
+
+        var combined = username + salt + password;
         var hashBytes = SHA512.HashData(Encoding.UTF8.GetBytes(combined));
         _token = Convert.ToHexString(hashBytes);
         return _token;
     }
 
     /// <summary>
-    /// Erstellt ein Token basierend auf bereits gesetztem Benutzernamen und Passwort.
+    /// Erstellt ein Token basierend auf bereits gesetztem Benutzernamen und Passwort und zufälligen Salt.
     /// </summary>
     /// <returns>Das generierte Token als hexadezimaler String.</returns>
-    public string CreateToken()
+    public string CreateSaveToken()
     {        
         return GenerateToken(Username, Password, GenerateSalt());
     }
@@ -69,7 +73,7 @@ public sealed class AuthenticationService : IAuthenticationService
     /// <param name="username">Der Benutzername für die Token-Erstellung.</param>
     /// <param name="password">Das Passwort für die Token-Erstellung.</param>
     /// <returns>Das generierte Token als hexadezimaler String.</returns>
-    public string CreateToken(string username, string password)
+    public string CreateRandomToken(string username, string password)
     {
         if (string.IsNullOrWhiteSpace(username))
             throw new ArgumentException("Der Benutzername darf nicht null oder leer sein.");
@@ -86,7 +90,7 @@ public sealed class AuthenticationService : IAuthenticationService
     /// <param name="password">Das Passwort für die Token-Erstellung.</param>
     /// <param name="salt">Das Salt für die Token-Erstellung.</param>
     /// <returns>Das generierte Token als hexadezimaler String.</returns>
-    public string CreateToken(string username, string password, string salt)
+    public string RecreateToken(string username, string password, string salt)
     {
         if (string.IsNullOrWhiteSpace(username))
             throw new ArgumentException("Der Benutzername darf nicht null oder leer sein.");
