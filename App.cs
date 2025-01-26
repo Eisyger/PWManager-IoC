@@ -11,7 +11,8 @@ internal class App(
     IPersistenceService persistenceService,
     SaltPersistenceService saltPersistenceService,
     IContextService ctxService,
-    IAuthenticationService authService)
+    IAuthenticationService authService,
+    IValidationService validationService)
 {    
     private IContextService _ctxService = ctxService;
 
@@ -91,7 +92,7 @@ internal class App(
                         break;
                     case MenuAction.ChangeUserData:
                             com.WriteChangeUserData(
-                            ValidationHelper.ValidateUserAndPassword, // Validate - impl fehlt noch
+                            validationService.ValidateUserAndPassword, // Validate - impl fehlt noch
                             authService.CreateRandomToken); // Create Token
                         SaveData();
                         break;
@@ -117,20 +118,15 @@ internal class App(
             loggingService.Log("Starte Login.");  
             
             isLogin = true;
-            com.WriteLogin(ValidationHelper.ValidateUserAndPassword, 
+            com.WriteLogin(validationService.ValidateUserAndPassword, 
                 (u, p) => authService.RecreateToken(u, p, saltPersistenceService.LoadData())); // Create Token
-           
-            loggingService.Warning("Username und Passwort sind gleich! " +
-                            "Es ist noch keine Implementierung zur validierung der Eingaben vorhanden.");   
         }
         else 
         {
             isLogin = false;
             com.WriteRegister(
-                ValidationHelper.ValidateUserAndPassword, 
+                validationService.ValidateUserAndPassword, 
                 authService.CreateRandomToken);
-            loggingService.Warning("Username und Passwort sind gleich! " +
-                            "Es ist noch keine Implementierung zur validierung der Eingaben vorhanden.");  
         } 
         return isLogin;
     }

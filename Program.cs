@@ -29,6 +29,7 @@ class Program
             .AddSingleton(new SaltPersistenceService(Path.Combine(Environment.CurrentDirectory, saltPath)))
             .AddSingleton<IContextService, ContextService>()
             .AddSingleton<IAuthenticationService, AuthenticationService>()
+            .AddSingleton<IValidationService, ValidationService>()
             .AddSingleton<App>()  
             .BuildServiceProvider();
         

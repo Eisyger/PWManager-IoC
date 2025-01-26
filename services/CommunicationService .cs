@@ -2,7 +2,7 @@ using PWManager.interfaces;
 using PWManager.model;
 
 namespace PWManager.services;
-public sealed class CommunicationService : ICommunicationService
+public sealed class CommunicationService(IValidationService validationService) : ICommunicationService
 {
     public string WriteWelcome()
     {
@@ -10,7 +10,7 @@ public sealed class CommunicationService : ICommunicationService
         return "";
     }
 
-    private static string HandleUserInput(
+    private string HandleUserInput(
         string title, 
         string successMessage, 
         Func<string, string, bool> validate, 
@@ -24,12 +24,12 @@ public sealed class CommunicationService : ICommunicationService
         {
             Console.Clear();
             Console.WriteLine(invalidInput ? "UNGÜLTIGE EINGABE" : title);
-            Console.WriteLine(ValidationHelper.ValidationMessage);
+            Console.WriteLine(validationService.ValidationMessage);
             Console.WriteLine(successMessage);
             Console.WriteLine("Gib einen Usernamen an:");
             username = Console.ReadLine() ?? "";
             Console.WriteLine("Gib ein Masterpasswort an:");
-            password = ValidationHelper.ReadMaskedPassword();
+            password = PasswordReader.ReadMaskedPassword();
             invalidInput = true;
         } while (string.IsNullOrWhiteSpace(username) || 
                  string.IsNullOrWhiteSpace(password) || 
@@ -83,7 +83,7 @@ public sealed class CommunicationService : ICommunicationService
         Console.WriteLine("Benutzername:");
         var user = Console.ReadLine();
         Console.WriteLine("Password:");
-        var pwd = ValidationHelper.ReadMaskedPassword();
+        var pwd = PasswordReader.ReadMaskedPassword();
         Console.WriteLine("URL:");
         var url = Console.ReadLine();
         Console.WriteLine("Beschreibung:");
