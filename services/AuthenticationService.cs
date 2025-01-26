@@ -8,11 +8,9 @@ public sealed class AuthenticationService : IAuthenticationService
 {
     private string? _username;
     private string? _password;
-    private string _salt = string.Empty;
-    private string _token = string.Empty;
 
     // Properties mit Validierung
-    public string Username
+    private string Username
     {
         get => _username ?? throw new InvalidOperationException("Der Benutzername wurde noch nicht gesetzt.");
         set
@@ -23,7 +21,7 @@ public sealed class AuthenticationService : IAuthenticationService
         }
     }
 
-    public string Password
+    private string Password
     {
         get => _password ?? throw new InvalidOperationException("Das Passwort wurde noch nicht gesetzt.");
         set
@@ -34,16 +32,17 @@ public sealed class AuthenticationService : IAuthenticationService
         }
     }
 
-    public string Token => _token;
-    public string Salt => _salt;
+    public string Token { get; private set; } = string.Empty;
+
+    public string Salt { get; private set; } = string.Empty;
 
     private string GenerateSalt()
     {
         using var rng = RandomNumberGenerator.Create();
         var byteSalt = new byte[16];
         rng.GetBytes(byteSalt);
-        _salt = Convert.ToBase64String(byteSalt);
-        return _salt;
+        Salt = Convert.ToBase64String(byteSalt);
+        return Salt;
     }
 
     private string GenerateToken(string username, string password, string salt)
@@ -54,8 +53,8 @@ public sealed class AuthenticationService : IAuthenticationService
 
         var combined = username + salt + password;
         var hashBytes = SHA512.HashData(Encoding.UTF8.GetBytes(combined));
-        _token = Convert.ToHexString(hashBytes);
-        return _token;
+        Token = Convert.ToHexString(hashBytes);
+        return Token;
     }
 
     /// <summary>

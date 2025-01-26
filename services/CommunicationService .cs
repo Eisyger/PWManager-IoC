@@ -10,69 +10,64 @@ public sealed class CommunicationService : ICommunicationService
         return "";
     }
 
-    public string WriteRegister(Func<string, string, bool> validate, Func<string, string, string> token)
+    private static string HandleUserInput(
+        string title, 
+        string successMessage, 
+        Func<string, string, bool> validate, 
+        Func<string, string, string> token)
     {
         var invalidInput = false;
         string? username;
         string? password;
-        do{
+
+        do
+        {
             Console.Clear();
-            Console.WriteLine(invalidInput ? "UNGÜLTIGE EINGABE" : "REGISTRIERUNG");
-            Console.WriteLine("Es ist noch kein Account Registriert.");
-            Console.WriteLine("Starte registrierung...");
+            Console.WriteLine(invalidInput ? "UNGÜLTIGE EINGABE" : title);
+            Console.WriteLine(ValidationHelper.ValidationMessage);
+            Console.WriteLine(successMessage);
             Console.WriteLine("Gib einen Usernamen an:");
             username = Console.ReadLine() ?? "";
             Console.WriteLine("Gib ein Masterpasswort an:");
-            password = ValidationHelper.ReadPassword();
+            password = ValidationHelper.ReadMaskedPassword();
             invalidInput = true;
-        } while (string.IsNullOrWhiteSpace(username)|| 
+        } while (string.IsNullOrWhiteSpace(username) || 
                  string.IsNullOrWhiteSpace(password) || 
                  !validate.Invoke(username, password));
 
         return token.Invoke(username, password);
+    }
+
+    public string WriteRegister(Func<string, string, bool> validate, Func<string, string, string> token)
+    {
+        return HandleUserInput(
+            title: "REGISTRIERUNG",
+            successMessage: "Es ist noch kein Account registriert.\nStarte Registrierung...",
+            validate,
+            token
+        );
     }
 
     public string WriteLogin(Func<string, string, bool> validate, Func<string, string, string> token)
     {
-        var invalidInput = false;
-        string? username;
-        string? password;
-        do{
-            Console.Clear();
-            Console.WriteLine(invalidInput ? "UNGÜLTIGE EINGABE" : "LOGIN");
-            Console.WriteLine("Starte Login...");
-            Console.WriteLine("Username:");
-            username = Console.ReadLine();
-            Console.WriteLine("Passwort:");
-            password = ValidationHelper.ReadPassword();
-            invalidInput = true;
-        }while (string.IsNullOrWhiteSpace(username)|| 
-                string.IsNullOrWhiteSpace(password) || 
-                !validate.Invoke(username, password));
-
-        return token.Invoke(username, password);
+        return HandleUserInput(
+            title: "LOGIN",
+            successMessage: "Starte Login...",
+            validate,
+            token
+        );
     }
 
     public string WriteChangeUserData(Func<string, string, bool> validate, Func<string, string, string> token)
     {
-        var invalidInput = false;
-        string? username;
-        string? password;
-        do{
-            Console.Clear();
-            Console.WriteLine(invalidInput ? "UNGÜLTIGE EINGABE" : "ÄNDERE LOGIN-DATEN");
-            Console.WriteLine("Merke dir die neuen Logindaten gut!");
-            Console.WriteLine("Gib einen neuen Usernamen an:");
-            username = Console.ReadLine() ?? "";
-            Console.WriteLine("Gib ein neues Masterpasswort an:");
-            password = ValidationHelper.ReadPassword();
-            invalidInput = true;
-        } while (string.IsNullOrWhiteSpace(username)|| 
-                 string.IsNullOrWhiteSpace(password) || 
-                 !validate.Invoke(username, password));
-
-        return token.Invoke(username, password);
+        return HandleUserInput(
+            title: "ÄNDERE LOGIN-DATEN",
+            successMessage: "Merke dir die neuen Logindaten gut!",
+            validate,
+            token
+        );
     }
+
 
     public (bool Success, DataContext? dataContext) WriteAdd()
     {
@@ -88,7 +83,7 @@ public sealed class CommunicationService : ICommunicationService
         Console.WriteLine("Benutzername:");
         var user = Console.ReadLine();
         Console.WriteLine("Password:");
-        var pwd = ValidationHelper.ReadPassword();
+        var pwd = ValidationHelper.ReadMaskedPassword();
         Console.WriteLine("URL:");
         var url = Console.ReadLine();
         Console.WriteLine("Beschreibung:");

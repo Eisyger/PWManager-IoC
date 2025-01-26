@@ -1,4 +1,3 @@
-using System.Data;
 using PWManager.interfaces;
 using PWManager.services;
 using TextCopy;
@@ -18,8 +17,6 @@ internal class App(
 
     public void Run()
     {
-        // Das Token steht über die Laufzeit zur Verfügung, entweder durch das Registrieren,
-        // oder durch den Login. Der Context wird mit dem Token ver- oder entschlüsselt.
         loggingService.Log("Starte PWManager...");
         var isLogin = StartUp();
         loggingService.Log(isLogin ? "Login ausgeführt." : "Registrierung ausgeführt.");
@@ -54,7 +51,7 @@ internal class App(
                         if (result is { Success: true, dataContext: not null })
                         {
                             _ctxService.Add(result.dataContext);
-                            Save();
+                            SaveData();
                         }
                         break;
                     case MenuAction.RemoveAccount:
@@ -94,9 +91,9 @@ internal class App(
                         break;
                     case MenuAction.ChangeUserData:
                             com.WriteChangeUserData(
-                            (u, p) => u==p, // Validate - impl fehlt noch
-                            authService.GenerateToken); // Create Token
-                        Save();
+                            ValidationHelper.ValidateUserAndPassword, // Validate - impl fehlt noch
+                            authService.CreateRandomToken); // Create Token
+                        SaveData();
                         break;
                     default:
                         var exception = new ArgumentOutOfRangeException
@@ -108,7 +105,41 @@ internal class App(
                 }
         }
     }
+    private bool StartUp()
+    {
+        bool isLogin;
+        loggingService.Log("App gestartet");
 
+        com.WriteWelcome();
+        
+        if (File.Exists(persistenceService.GetPath()) && File.Exists(saltPersistenceService.GetPath()))
+        {
+            loggingService.Log("Starte Login.");  
+            
+            isLogin = true;
+            com.WriteLogin(ValidationHelper.ValidateUserAndPassword, 
+                (u, p) => authService.RecreateToken(u, p, saltPersistenceService.LoadData())); // Create Token
+           
+            loggingService.Warning("Username und Passwort sind gleich! " +
+                            "Es ist noch keine Implementierung zur validierung der Eingaben vorhanden.");   
+        }
+        else 
+        {
+            isLogin = false;
+            com.WriteRegister(
+                ValidationHelper.ValidateUserAndPassword, 
+                authService.CreateRandomToken);
+            loggingService.Warning("Username und Passwort sind gleich! " +
+                            "Es ist noch keine Implementierung zur validierung der Eingaben vorhanden.");  
+        } 
+        return isLogin;
+    }
+    private void SaveData()
+    {
+        persistenceService.SaveData(cypher.Encrypt(_ctxService, authService.CreateSaveToken()));
+        saltPersistenceService.SaveData(authService.Salt);
+    }
+    
     /// <summary>
     /// Lädt die Daten aus der SaveFile
     /// </summary>
@@ -131,43 +162,5 @@ internal class App(
             return false;
         }
         return true;
-    }
-    private bool StartUp()
-    {
-        string? token;
-        bool isLogin;
-        loggingService.Log("App gestartet");
-
-        com.WriteWelcome();
-        
-        if (File.Exists(persistenceService.GetPath()) && File.Exists(saltPersistenceService.GetPath()))
-        {
-            loggingService.Log("Starte Login.");  
-            
-            isLogin = true;
-            com.WriteLogin((u, p) => u == p, // Validate - impl fehlt noch
-                (u, p) => authService.RecreateToken(u, p, saltPersistenceService.LoadData())); // Create Token
-           
-            loggingService.Warning("Username und Passwort sind gleich! " +
-                            "Es ist noch keine Implementierung zur validierung der Eingaben vorhanden.");   
-        }
-        else 
-        {
-            isLogin = false;
-            com.WriteRegister(
-                (u, p) => u == p, // Validate - impl fehlt noch
-                authService.CreateRandomToken);
-            loggingService.Warning("Username und Passwort sind gleich! " +
-                            "Es ist noch keine Implementierung zur validierung der Eingaben vorhanden.");  
-        } 
-        return isLogin;
-    }
-    private void Save()
-    {
-        // TODO Das _token wurde erstellt mit dem Salt der aus der Datei gelesen wurde
-        // TODO wird nun der Salt neu erstellt, dann muss auch das Token neu erstellt werden, dies geht jedoch nur 
-        // TODO durch den Usernamen und das PW
-        persistenceService.SaveData(cypher.Encrypt(_ctxService, authService.CreateSaveToken()));
-        saltPersistenceService.SaveData(authService.Salt);
     }
 }
