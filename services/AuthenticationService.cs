@@ -58,7 +58,7 @@ public sealed class AuthenticationService : IAuthenticationService
     }
 
     /// <summary>
-    /// Erstellt ein Token basierend auf bereits gesetztem Benutzernamen und Passwort und zufälligen Salt.
+    /// Erstellt ein Token basierend auf bereits gesetztem Benutzernamen und Passwort und einem zufälligen Salt.
     /// </summary>
     /// <returns>Das generierte Token als hexadezimaler String.</returns>
     public string CreateSaveToken()
@@ -67,7 +67,7 @@ public sealed class AuthenticationService : IAuthenticationService
     }
 
     /// <summary>
-    /// Erstellt ein Token basierend auf Benutzernamen und Passwort.
+    /// Erstellt ein Token basierend auf Benutzernamen und Passwort und einen zufälligem Salt.
     /// </summary>
     /// <param name="username">Der Benutzername für die Token-Erstellung.</param>
     /// <param name="password">Das Passwort für die Token-Erstellung.</param>
