@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using PWManager.interfaces;
-using PWManager.services;
+using PWManager.Interfaces;
 using PWManager.Services;
 
 namespace PWManager;
@@ -19,7 +18,6 @@ class Program
             saltPath = Path.Combine(args[0], path);
         }
         
-        // Erstelle IoC-Container
         var serviceProvider = new ServiceCollection()
             .AddSingleton<ILoggingService, LoggingService>()  
             .AddSingleton<ICommunicationService, CommunicationService>()

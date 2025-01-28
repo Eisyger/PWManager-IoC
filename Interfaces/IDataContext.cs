@@ -1,4 +1,4 @@
-namespace PWManager.interfaces
+namespace PWManager.Interfaces
 {
     public interface IDataContext
     {

@@ -1,5 +1,5 @@
-using PWManager.interfaces;
-using PWManager.services;
+using PWManager.Interfaces;
+using PWManager.Services;
 using TextCopy;
 
 namespace PWManager;
@@ -68,6 +68,7 @@ internal class App(
                         break;
                     case MenuAction.Exit:
                         com.WriteExit();
+                        SaveData();
                         return;
                     case MenuAction.GetAccount:
                         try
@@ -92,8 +93,8 @@ internal class App(
                         break;
                     case MenuAction.ChangeUserData:
                             com.WriteChangeUserData(
-                            validationService.ValidateUserAndPassword, // Validate - impl fehlt noch
-                            authService.CreateRandomToken); // Create Token
+                            validationService.ValidateUserAndPassword,
+                            (u,p)=> authService.RecreateKey(u, p, "default"));
                         SaveData();
                         break;
                     default:
@@ -119,20 +120,20 @@ internal class App(
             
             isLogin = true;
             com.WriteLogin(validationService.ValidateUserAndPassword, 
-                (u, p) => authService.RecreateToken(u, p, saltPersistenceService.LoadData())); // Create Token
+                (u, p) => authService.RecreateKey(u, p, saltPersistenceService.LoadData()));
         }
         else 
         {
             isLogin = false;
             com.WriteRegister(
                 validationService.ValidateUserAndPassword, 
-                authService.CreateRandomToken);
+                (u, p) => authService.RecreateKey(u, p, "default"));
         } 
         return isLogin;
     }
     private void SaveData()
     {
-        persistenceService.SaveData(cypher.Encrypt(_ctxService, authService.CreateSaveToken()));
+        persistenceService.SaveData(cypher.Encrypt(_ctxService, authService.CreateRandomKey()));
         saltPersistenceService.SaveData(authService.Salt);
     }
     
@@ -149,7 +150,7 @@ internal class App(
         {
             var saveFileData = persistenceService.LoadData();
                        
-            _ctxService = cypher.Decrypt<ContextService>(saveFileData, authService.Token);                
+            _ctxService = cypher.Decrypt<ContextService>(saveFileData, authService.Key);                
             loggingService.Log("Daten aus SaveFile geladen.");
         }
         catch (Exception e)

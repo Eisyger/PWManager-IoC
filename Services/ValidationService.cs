@@ -1,6 +1,6 @@
-using PWManager.interfaces;
+using PWManager.Interfaces;
 
-namespace PWManager.services;
+namespace PWManager.Services;
 
 public class ValidationService : IValidationService
 {
