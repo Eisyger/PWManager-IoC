@@ -27,7 +27,6 @@ class Program
             .AddSingleton<IContextService, ContextService>()
             .AddSingleton<IAuthenticationService, AuthenticationService>()
             .AddSingleton<IValidationService, ValidationService>()
-            //.AddSingleton<App>()  
             .AddSingleton<AppChainLogic>()
             .BuildServiceProvider();
         
