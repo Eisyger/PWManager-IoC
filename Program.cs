@@ -9,7 +9,6 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        
         var path = "data.txt";
         var saltPath = "salt.txt";
         if (args.Length > 0 && Path.Exists(args[0]))
@@ -28,10 +27,11 @@ class Program
             .AddSingleton<IContextService, ContextService>()
             .AddSingleton<IAuthenticationService, AuthenticationService>()
             .AddSingleton<IValidationService, ValidationService>()
-            .AddSingleton<App>()  
+            //.AddSingleton<App>()  
+            .AddSingleton<AppChainLogic>()
             .BuildServiceProvider();
         
-        var app = serviceProvider.GetRequiredService<App>();
+        var app = serviceProvider.GetRequiredService<AppChainLogic>();
         app.Run();
     }
 }
