@@ -22,7 +22,7 @@ internal class AppChainLogic(
     private readonly DecryptSegment _decrypt = new DecryptSegment(cypher);
     private readonly ChainContext _segment = new ChainContext();
 
-    public void Run()
+    public async Task Run()
     {
         // StartUp Chain
         // 1. Lade SaveFile und SaltFile
@@ -30,54 +30,63 @@ internal class AppChainLogic(
         // 3. Entschlüssele die SaveFile mit den Benutzereingaben und dem SaltFile
         _load.SetNext(_input);
         _input.SetNext(_decrypt);
-        _load.Handle(_segment);
+        
+        await _load.Handle(_segment);
+        
         // _segment hat nun den Kompletten ContextService aus der SaveFile
         _ctxService = _segment.Ctx.ContextService;
         
-        ShowMenu();
+        await ShowMenu();
     }
     
-    private void ShowMenu()
+    private async Task ShowMenu()
     {
         while (true)
         {
+            try
+            {
             var state = com.WriteMenu();
 
             switch (state.Action)
             {
                 case MenuAction.ViewAccounts: HandleViewAccounts(); break;
-                case MenuAction.AddAccount: HandleAddAccount();break;
-                case MenuAction.RemoveAccount: HandleRemoveAccount(); break;
-                case MenuAction.Exit: com.WriteExit(); SaveData(); return;
+                case MenuAction.AddAccount: await HandleAddAccount();break;
+                case MenuAction.RemoveAccount: await HandleRemoveAccount(); break;
+                case MenuAction.Exit: com.WriteExit(); await SaveData(); return;
                 case MenuAction.GetAccount: HandleGetAccount(state); break;
                 case MenuAction.CopyAccount: HandleCopyToClipboard(state); break;
-                case MenuAction.ChangeUserData: HandleChangeUserData(); break;
+                case MenuAction.ChangeUserData: await HandleChangeUserData(); break;
                 default: throw new ArgumentOutOfRangeException(nameof(state.Action), state.Action, "Undefinierte MenuAction.");
+            }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
     }
-    private void HandleChangeUserData()
+    private async Task HandleChangeUserData()
     {
         com.WriteChangeUserData(
             validationService.ValidateUserAndPassword,
             (u,p)=> authService.RecreateKey(u, p, "default"));
-        SaveData();
+        await SaveData();
     }
     private void HandleViewAccounts() => com.WriteDump(_ctxService);
-    private void HandleAddAccount()
+    private async Task HandleAddAccount()
     {
         var result = com.WriteAdd();
         if (result is not { Success: true, dataContext: not null }) return;
         _ctxService.Add(result.dataContext);
-        SaveData();
+        await SaveData();
     }
-    private void HandleRemoveAccount()
+    private async Task HandleRemoveAccount()
     {
         var name = com.WriteRemove();
         if (_ctxService.ContextsList?.Any(x => x.Name == name) == true)
         {
             _ctxService.Remove(name);
-            SaveData();
+            await SaveData();
         }
         else
         {
@@ -107,9 +116,9 @@ internal class AppChainLogic(
             loggingService.Log(e.Message);
         }
     }
-    private void SaveData()
+    private async Task SaveData()
     {
-        persistenceService.SaveData(cypher.Encrypt(_ctxService, authService.CreateRandomKey()));
+        persistenceService.SaveData(await cypher.EncryptAsync(_ctxService, authService.CreateRandomKey()));
         saltPersistenceService.SaveData(authService.Salt);
     }
 }

@@ -1,13 +1,12 @@
 using PWManager.Interfaces;
-using PWManager.Model;
 using PWManager.Services;
 
 namespace PWManager.Chain;
 
-public class DecryptSegment(ICypherService cypher) : Handler
+public class DecryptSegment(ICypherService cypher) : HandlerAsync
 {
-    protected override void Process(ChainContext data)
+    protected override async Task Process(ChainContext data)
     {
-        data.Ctx.ContextService = cypher.Decrypt<ContextService>(data.Ctx.RawData, data.Ctx.Auth.Key);
+        data.Ctx.ContextService = cypher.DecryptAsync<ContextService>(data.Ctx.RawData, data.Ctx.Auth.Key).Result;
     }
 }

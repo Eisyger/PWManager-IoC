@@ -7,7 +7,7 @@ namespace PWManager;
 class Program
 {
     [STAThread]
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var path = "data.txt";
         var saltPath = "salt.txt";
@@ -31,7 +31,7 @@ class Program
             .BuildServiceProvider();
         
         var app = serviceProvider.GetRequiredService<AppChainLogic>();
-        app.Run();
+        await app.Run();
     }
 }
 

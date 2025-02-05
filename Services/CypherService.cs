@@ -177,7 +177,50 @@ public class CypherService : ICypherService
             throw new InvalidOperationException($"Ein unerwarteter Fehler ist aufgetreten. {e.GetType()} {e.Message}", e);
         }
     }
-    
+
+    public async Task<T> DecryptAsync<T>(string plaintext, string token)
+    {
+        if (string.IsNullOrWhiteSpace(plaintext))
+            throw new ArgumentException("Der verschlüsselte Text (ciphertext) darf nicht null oder leer sein.", nameof(plaintext));
+        if (plaintext.Length % 2 != 0)
+            throw new ArgumentException("Ungültiger Hexadezimal-String.");
+        if (string.IsNullOrWhiteSpace(token))
+            throw new ArgumentException("Das Token darf nicht null oder leer sein.", nameof(token));
+
+        return await Task.Run(() =>
+        {
+            using var aes = Aes.Create();
+            (aes.Key, aes.IV) = GenerateKeyAndIv(token);
+
+            // Konvertiere den Hexadezimal-verschlüsselten Text zurück in Bytes
+            var encryptedBytes = Convert.FromHexString(plaintext);
+
+            try
+            {
+                using var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+                var decryptedBytes = decryptor.TransformFinalBlock(encryptedBytes, 0, encryptedBytes.Length);
+
+                var decryptedText = Encoding.UTF8.GetString(decryptedBytes);
+
+                return JsonSerializer.Deserialize<T>(decryptedText)
+                       ?? throw new InvalidOperationException("Die Deserialisierung ergab ein null-Wert.");
+            }
+            catch (CryptographicException e)
+            {
+                throw new InvalidOperationException("Fehler bei der Entschlüsselung: Überprüfe Token und Eingabe.", e);
+            }
+            catch (JsonException e)
+            {
+                throw new InvalidOperationException($"Fehler bei der Deserialisierung in den Typ {typeof(T)}.", e);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException(
+                    $"Ein unerwarteter Fehler ist aufgetreten. {e.GetType()} {e.Message}", e);
+            }
+        });
+    }
+
     private static (byte[] key, byte[] iv) GenerateKeyAndIv(string token)
     {        
         var key = new byte[16];

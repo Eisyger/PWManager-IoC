@@ -1,13 +1,15 @@
 using PWManager.Chain;
 
+namespace PWManager.Chain;
+
 public abstract class Handler
 {
-    protected Handler NextHandler;
+    private Handler? _nextHandler;
 
     // Setzt den nächsten Handler in der Kette
     public void SetNext(Handler next)
     {
-        NextHandler = next;
+        _nextHandler = next;
     }
 
     // Verarbeitet die Datenstruktur
@@ -16,9 +18,35 @@ public abstract class Handler
         Process(data);
 
         // Weitergabe an den nächsten Handler, falls vorhanden
-        NextHandler?.Handle(data);
+        _nextHandler?.Handle(data);
     }
 
     // Abstrakte Methode, die von den konkreten Handlers implementiert wird
     protected abstract void Process(ChainContext data);
+}
+
+public abstract class HandlerAsync
+{
+    private HandlerAsync? _nextHandler;
+
+    // Setzt den nächsten Handler in der Kette
+    public void SetNext(HandlerAsync next)
+    {
+        _nextHandler = next;
+    }
+
+    // Verarbeitet die Datenstruktur
+    public async Task Handle(ChainContext data)
+    {
+        await Process(data);
+
+        // Weitergabe an den nächsten Handler, falls vorhanden
+        if (_nextHandler != null)
+        {
+            await _nextHandler.Handle(data);
+        }
+    }
+
+    // Abstrakte Methode, die von den konkreten Handlers implementiert wird
+    protected abstract Task Process(ChainContext data);
 }

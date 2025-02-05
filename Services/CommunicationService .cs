@@ -125,7 +125,7 @@ public sealed class CommunicationService(IValidationService validationService) :
         var validInput = true;
         while (true)
         {
-            Console.Clear();
+            //Console.Clear();
             Console.WriteLine("""
                               ===========================
                                  PASSWORT MANAGEMENT
