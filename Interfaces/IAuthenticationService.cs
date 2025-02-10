@@ -2,8 +2,7 @@ namespace PWManager.Interfaces;
 
 public interface IAuthenticationService
 {
-    string Salt {get;}
-    string Key {get;} 
-    string CreateRandomKey();
-    string RecreateKey(string user, string pwd, string salt);
+    public string GenerateSalt();
+    public string GenerateKey(string appKey, string salt);
+    public string GenerateAppKey(string username, string password);
 }

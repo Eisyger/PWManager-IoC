@@ -137,3 +137,10 @@
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/runtimes/win-arm64/native/e_sqlite3.dll
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/runtimes/win-x64/native/e_sqlite3.dll
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/runtimes/win-x86/native/e_sqlite3.dll
+/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.Configuration.dll
+/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.Configuration.FileExtensions.dll
+/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.Configuration.Json.dll
+/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.FileProviders.Abstractions.dll
+/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.FileProviders.Physical.dll
+/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.FileSystemGlobbing.dll
+/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/appsettings.json

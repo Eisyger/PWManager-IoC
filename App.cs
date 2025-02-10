@@ -1,163 +1,110 @@
+using PWManager.Entity;
 using PWManager.Interfaces;
-using PWManager.Services;
 using TextCopy;
 
 namespace PWManager;
 
 internal class App(
-    ILoggingService loggingService, 
-    ICommunicationService com, 
+    ILoggingService loggingService,
+    ICommunicationService com,
     ICypherService cypher,
-    IPersistenceService persistenceService,
-    SaltPersistenceService saltPersistenceService,
     IContextService ctxService,
     IAuthenticationService authService,
-    IValidationService validationService)
-{    
-    private IContextService _ctxService = ctxService;
-
+    AccountContext account)
+{
     public void Run()
     {
-        loggingService.Log("Starte PWManager...");
-        var isLogin = StartUp();
-        loggingService.Log(isLogin ? "Login ausgeführt." : "Registrierung ausgeführt.");
-        
-        loggingService.Log("Lade Daten aus der SaveFile...");
-        var hasLoaded = LoadData();
-        loggingService.Log(hasLoaded ? "Daten aus SaveFile geladen." : "Es wurden keine Daten aus SaveFile geladen.");
-        
-        if (!hasLoaded && isLogin)
+        if (account.Accounts.Any())
         {
-            Console.WriteLine("Die Logindaten sind ungültig!\nBeende die Anwendung...");
+            if(!com.Login())
+                return;
+        }
+        else
+        {
+            // Nach einer Registrierung Neustart der App 
+            com.Register();
             return;
         }
         
-        loggingService.Log("State den Menu Loop...");
         ShowMenu();
     }
-
+    
     private void ShowMenu()
     {
         while (true)
         {
-                var state = com.WriteMenu();
+            var state = com.Menu();
 
-                switch (state.Action)
-                {
-                    case MenuAction.ViewAccounts:
-                        com.WriteDump(_ctxService);
-                        break;
-                    case MenuAction.AddAccount:
-                        var result = com.WriteAdd();
-                        if (result is { Success: true, dataContext: not null })
-                        {
-                            _ctxService.Add(result.dataContext);
-                            SaveData();
-                        }
-                        break;
-                    case MenuAction.RemoveAccount:
-                        var name = com.WriteRemove();
-                        if (_ctxService.ContextsList != null && _ctxService.ContextsList.Any(x => x.Name == name))
-                        {
-                            _ctxService.Remove(name);
-                        }
-                        else
-                        {
-                            loggingService.Error($"Kein Account mit dem Namen {name} vorhanden.");
-                        }
-                        break;
-                    case MenuAction.Exit:
-                        com.WriteExit();
-                        SaveData();
-                        return;
-                    case MenuAction.GetAccount:
-                        try
-                        {
-                            com.WriteDump(_ctxService.GetContext(state.Args));
-                        }
-                        catch (ArgumentNullException e)
-                        {
-                            loggingService.Log(e.Message);
-                        }
-                        break;
-                    case MenuAction.CopyAccount:
-                        try
-                        {
-                            ClipboardService.SetText(_ctxService.GetContext(state.Args).Password);
-                        }
-                        catch (ArgumentNullException e)
-                        {
-                            ClipboardService.SetText("");
-                            loggingService.Log(e.Message);
-                        }
-                        break;
-                    case MenuAction.ChangeUserData:
-                            com.WriteChangeUserData(
-                            validationService.ValidateUserAndPassword,
-                            (u,p)=> authService.RecreateKey(u, p, "default"));
-                        SaveData();
-                        break;
-                    default:
-                        var exception = new ArgumentOutOfRangeException
-                        {
-                            Source = "Für eine MenuAction wurde kein case definiert."
-                        };
-                        exception.Data.Add("Action", state.Action);
-                        throw exception;
-                }
+            switch (state.Action)
+            {
+                case MenuAction.ViewAccounts: HandleViewAccounts(); break;
+                case MenuAction.AddAccount: HandleAddAccount();break;
+                case MenuAction.RemoveAccount: HandleRemoveAccount(); break;
+                case MenuAction.Exit: com.WriteExit(); SaveData(); return;
+                case MenuAction.GetAccount: HandleGetAccount(state); break;
+                case MenuAction.CopyAccount: HandleCopyToClipboard(state); break;
+                case MenuAction.ChangeUserData: HandleChangeUserData(); break;
+                default: throw new ArgumentOutOfRangeException(nameof(state.Action), state.Action, "Undefinierte MenuAction.");
+            }
         }
     }
-    private bool StartUp()
+    private void HandleChangeUserData()
     {
-        bool isLogin;
-        loggingService.Log("App gestartet");
-
-        com.WriteWelcome();
-        
-        if (File.Exists(persistenceService.GetPath()) && File.Exists(saltPersistenceService.GetPath()))
+        /*com.ChangeUserData(
+            validationService.ValidateUserAndPassword,
+            (u,p)=> authService.RecreateKey(u, p, "default"));
+        SaveData();*/
+    }
+    private void HandleViewAccounts() => com.Dump(ctxService);
+    private void HandleAddAccount()
+    {
+        var result = com.WriteAdd();
+        if (result is not { Success: true, dataContext: not null }) return;
+        ctxService.Add(result.dataContext);
+        SaveData();
+    }
+    private void HandleRemoveAccount()
+    {
+        var name = com.Remove();
+        if (ctxService.ContextsList?.Any(x => x.Name == name) == true)
         {
-            loggingService.Log("Starte Login.");  
-            
-            isLogin = true;
-            com.WriteLogin(validationService.ValidateUserAndPassword, 
-                (u, p) => authService.RecreateKey(u, p, saltPersistenceService.LoadData()));
+            ctxService.Remove(name);
+            SaveData();
         }
-        else 
+        else
         {
-            isLogin = false;
-            com.WriteRegister(
-                validationService.ValidateUserAndPassword, 
-                (u, p) => authService.RecreateKey(u, p, "default"));
-        } 
-        return isLogin;
+            loggingService.Error($"Kein Account mit dem Namen {name} vorhanden.");
+        }
     }
-    private void SaveData()
-    {
-        persistenceService.SaveData(cypher.Encrypt(_ctxService, authService.CreateRandomKey()));
-        saltPersistenceService.SaveData(authService.Salt);
-    }
-    
-    /// <summary>
-    /// Lädt die Daten aus der SaveFile
-    /// </summary>
-    /// <returns>Sind Daten vorhanden, lade diese, return true.
-    /// Sind keine Daten vorhanden, return true → Erster Login ohne Daten.
-    /// Sind Daten vorhanden, aber Fehler beim Laden, return false → ungültige Login Daten.
-    /// </returns>
-    private bool LoadData()
+    private void HandleGetAccount((MenuAction action, string Args)state)
     {
         try
         {
-            var saveFileData = persistenceService.LoadData();
-                       
-            _ctxService = cypher.Decrypt<ContextService>(saveFileData, authService.Key);                
-            loggingService.Log("Daten aus SaveFile geladen.");
+            com.Dump(ctxService.GetContext(state.Args));
+            Console.ReadLine();
         }
-        catch (Exception e)
+        catch (ArgumentNullException e)
         {
-            loggingService.Error(e.Message);
-            return false;
+            loggingService.Log(e.Message);
         }
-        return true;
+    }
+    private void HandleCopyToClipboard((MenuAction action, string Args)state)
+    {
+        try
+        {
+            ClipboardService.SetText(ctxService.GetContext(state.Args).Password);
+        }
+        catch (ArgumentNullException e)
+        {
+            ClipboardService.SetText("");
+            loggingService.Log(e.Message);
+        }
+    }
+    private void SaveData()
+    {
+        if (account.Current == null) return;
+        account.Current.Salt = authService.GenerateSalt();
+        account.Current.EncryptedAccount = cypher.Encrypt(ctxService, authService.GenerateKey(account.AppKey, account.Current.Salt));
+        account.SaveChanges();
     }
 }

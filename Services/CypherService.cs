@@ -2,7 +2,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using PWManager.Interfaces;
-using PWManager.Model;
 
 namespace PWManager.Services;
 public class CypherService : ICypherService

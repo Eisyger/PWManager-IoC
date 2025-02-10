@@ -1,20 +1,55 @@
+using PWManager.Entity;
 using PWManager.Interfaces;
 using PWManager.Services;
 
 namespace PWManager.Chain;
 
-public class InputSegment(ICommunicationService comService, IValidationService validate, IAuthenticationService auth) : Handler
+public class InputSegment(ICommunicationService comService, IValidationService validate, IAuthenticationService auth, AccountContext account, ICypherService cypher) : Handler
 {
-    protected override void Process(ChainContext data)
+    protected override void Process(IContextService context)
     {
-        if (data.Ctx.RawData.Length != 0 && data.Ctx.Salt.Length != 0)
+        /*
+        if (session.Sessions.Any())
         {
-            comService.WriteLogin(validate.ValidateUserAndPassword, (u, p) => auth.RecreateKey(u,p, data.Ctx.Salt));
+            auth.Key = comController.Login(validate.ValidateUserAndPassword,
+                (u, p) =>
+                {
+                    var key = "";
+                    session.CurrentSession = session.Sessions.FirstOrDefault(x => x.User == u);
+                    
+                    if (session.CurrentSession  != null)
+                    {
+                        // Key generieren
+                        key = auth.RecreateKey(u, p,   session.CurrentSession.Salt);
+                        // Auslesen der Daten mithilfe des Keys
+                        context = cypher.Decrypt<ContextService>(session.CurrentSession.EncryptedAccoundService, key);
+                        // Erstellen eines neuen Keys für die weitere Verschlüsselung
+                        key = auth.CreateRandomKey();
+                    }
+                    return key;
+                });
         }
         else
         {
-            comService.WriteRegister(validate.ValidateUserAndPassword, (u, p) => auth.RecreateKey(u, p, "default"));
-        }
-        data.Ctx.Auth = auth;
+            var user = "";
+            var salt = "DefaulByRegister";
+            // Ermittle Usernamen
+            auth.Key = comController.Register(validate.ValidateUserAndPassword, 
+                (u, p) =>
+                {
+                    user = u;
+                    return auth.RecreateKey(u, p, salt);
+                });
+
+            session.CurrentSession = new SessionEntity()
+            {
+                User = user,
+                Salt = salt,
+                EncryptedAccoundService = cypher.Encrypt(context, auth.Key)
+            };
+            
+            session.Sessions.Add(session.CurrentSession);
+            session.SaveChanges();
+        }*/
     }
 }

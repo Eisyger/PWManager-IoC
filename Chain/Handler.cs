@@ -1,4 +1,6 @@
-using PWManager.Chain;
+using PWManager.Entity;
+using PWManager.Interfaces;
+using PWManager.Services;
 
 public abstract class Handler
 {
@@ -11,14 +13,14 @@ public abstract class Handler
     }
 
     // Verarbeitet die Datenstruktur
-    public void Handle(ChainContext data)
+    public void Handle(IContextService context)
     {
-        Process(data);
+        Process(context);
 
         // Weitergabe an den nächsten Handler, falls vorhanden
-        NextHandler?.Handle(data);
+        NextHandler?.Handle(context);
     }
 
     // Abstrakte Methode, die von den konkreten Handlers implementiert wird
-    protected abstract void Process(ChainContext data);
+    protected abstract void Process(IContextService context);
 }

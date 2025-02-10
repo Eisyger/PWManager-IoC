@@ -4,11 +4,12 @@ namespace PWManager.Interfaces
 {
     public interface IContextService
     {
-        public List<DataContext>? ContextsList { get; set; }
+        public List<AccountData>? ContextsList { get; set; }
+        public string User {get;set;}
         
-        void Add(DataContext newContext);
+        void Add(AccountData @new);
         void Remove(string name);
-        void Edit(string name, DataContext updatedContext);
+        void Edit(string name, AccountData updated);
         IDataContext GetContext(string name);
     }
 }

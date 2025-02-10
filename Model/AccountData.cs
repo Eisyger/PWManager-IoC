@@ -2,7 +2,7 @@ using PWManager.Interfaces;
 
 namespace PWManager.Model
 {
-    public class DataContext : IDataContext
+    public class AccountData : IDataContext
     {
         public string Name { get; set; } = string.Empty;
         public string User { get; set; } = string.Empty;

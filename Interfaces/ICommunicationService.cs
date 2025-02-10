@@ -3,16 +3,16 @@ using PWManager.Model;
 namespace PWManager.Interfaces;
     public interface ICommunicationService
     {
-        string WriteWelcome();
-        string WriteRegister(Func<string, string, bool> validate, Func<string, string, string> token);
-        string WriteLogin(Func<string, string, bool> validate, Func<string, string, string> token);
-        string WriteChangeUserData(Func<string, string, bool> validate, Func<string, string, string> token);
-        (bool Success, DataContext? dataContext) WriteAdd();
-        string WriteRemove();
+        void Welcome();
+        bool Register();
+        bool Login();
+        string ChangeUserData();
+        (bool Success, AccountData? dataContext) WriteAdd();
+        string Remove();
         void WriteExit();
-        (MenuAction Action, string Args) WriteMenu();
-        void WriteDump(IContextService contextService);
-        void WriteDump(IDataContext context);
+        (MenuAction Action, string Args) Menu();
+        void Dump(IContextService contextService);
+        void Dump(IDataContext context);
     }
     public enum MenuAction
     {

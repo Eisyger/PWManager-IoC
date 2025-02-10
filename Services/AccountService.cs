@@ -3,25 +3,26 @@ using PWManager.Model;
 
 namespace PWManager.Services
 {
-    public class ContextService : IContextService
+    public class AccountService : IContextService
     {
-        public List<DataContext>? ContextsList { get; set; } = [];
+        public List<AccountData>? ContextsList { get; set; } = [];
+        public string User { get; set; }
 
-        public void Add(DataContext newContext)
+        public void Add(AccountData @new)
         {
-            ContextsList?.Add(newContext);
+            ContextsList?.Add(@new);
         }
         public void Remove(string name)
         {
              ContextsList?.RemoveAll(x => x.Name == name);
         }
-        public void Edit(string name, DataContext updatedContext)
+        public void Edit(string name, AccountData updated)
         {
             if (ContextsList == null) return;
             var index = ContextsList.FindIndex(x => x.Name == name);
             if (index >= 0)
             {
-                ContextsList[index] = updatedContext;
+                ContextsList[index] = updated;
             }
         }
         public IDataContext GetContext(string name)
