@@ -4,7 +4,7 @@ using PWManager.Model;
 
 namespace PWManager.Services;
 
-public class ConsoleCommunicationService(AccountContext account, IValidationService validation, IAuthenticationService auth, IContextService context, ICypherService cypher) : ICommunicationService       
+public class ConsoleCommunicationService(AccountContext accCtx,IAppKeyService appKeyService, IValidationService validation, IAuthenticationService auth, IContextService context, ICypherService cypher) : ICommunicationService       
 {
 
     public void Welcome()
@@ -27,23 +27,24 @@ public class ConsoleCommunicationService(AccountContext account, IValidationServ
                 Console.WriteLine("Gib ein Masterpasswort an:");
                 var pwd = PasswordReader.ReadMaskedPassword();
                 
-                var s = account.Accounts.FirstOrDefault(x => x.User == user);
+                var s = accCtx.Accounts.FirstOrDefault(x => x.User == user);
                 if (s != null)
                 {
 #if DEBUG
                     Console.WriteLine("Username existiert bereits.");
 #endif
-                    Console.WriteLine("Username oder Passwort Falsch.");
+                    Console.WriteLine("Username oder Passwort falsch.");
+                    Thread.Sleep(1000);
                     continue;
                 }
                 
                 var result = validation.ValidateUserAndPassword(user, pwd);
                 if (result.Valid)
                 {
-                    account.AppKey = auth.GenerateAppKey(user,pwd);
+                    appKeyService.Key = auth.GenerateAppKey(user,pwd);
                     var salt = auth.GenerateSalt();
-                    var key = auth.GenerateKey(account.AppKey , salt);
-                    account.Accounts.Add(new AccountEntity()
+                    var key = auth.GenerateKey(appKeyService.Key, salt);
+                    accCtx.Accounts.Add(new AccountEntity()
                     {
                         User = user,
                         Salt = salt,
@@ -53,8 +54,10 @@ public class ConsoleCommunicationService(AccountContext account, IValidationServ
                         }, key)
                     });
                     // Schreibt einen Eintrag in die DB
-                    account.SaveChanges();
+                    accCtx.SaveChanges();
+                    
                     Console.WriteLine("Registrierung erfolgreich. Starte das programm erneut...");
+                    Console.ReadLine();
                     return true;
                 }
                 Console.WriteLine(result.Message);
@@ -73,12 +76,12 @@ public class ConsoleCommunicationService(AccountContext account, IValidationServ
                 Console.Clear();
 #endif
                 Console.WriteLine("LOGIN");
-                Console.WriteLine("Gib deine Usernamen an:");
+                Console.WriteLine("Gib deinen Usernamen an:");
                 var user = Console.ReadLine()?.Trim() ?? "";
                 Console.WriteLine("Gib dein Masterpasswort an:");
                 var pwd = PasswordReader.ReadMaskedPassword();
                 
-                var s = account.Accounts.FirstOrDefault(x => x.User == user);
+                var s = accCtx.Accounts.FirstOrDefault(x => x.User == user);
                 if (s == null)
                 {
                     Console.WriteLine($"Username oder Passwort Falsch.");
@@ -99,14 +102,15 @@ public class ConsoleCommunicationService(AccountContext account, IValidationServ
                     Console.WriteLine("Fehler beim entschlüsseln");
                     Console.WriteLine(ex.Message);
 #endif
-                    Console.WriteLine("Username oder Passwort Falsch.");
+                    Console.WriteLine("Username oder Passwort falsch.");
+                    Thread.Sleep(1000);
                     continue;
                 }
                 
-                account.Current = s;
+                accCtx.CurrentAccEntity = s;
                 
                 // AppKey für die Verschlüsselung während der Laufzeit, ohne erneuten Zugriff auf Username und Passwort. 
-                account.AppKey = auth.GenerateAppKey(user, pwd);
+                appKeyService.Key = auth.GenerateAppKey(user, pwd);
                     
                 context.User = ctx.User;
                 context.ContextsList = ctx.ContextsList;
@@ -118,10 +122,68 @@ public class ConsoleCommunicationService(AccountContext account, IValidationServ
         return false;
     }
 
-    public string ChangeUserData()
+    public bool ChangeUserData()
     {
-        throw new NotImplementedException();
+        const int maxAttempts = 3;
+        for (var i = 0; i < maxAttempts; i++)
+        {
+#if DEBUG
+            Console.WriteLine("##############################################");
+#else
+                Console.Clear();
+#endif
+            Console.WriteLine("ÄNDERE LOGINDATEN");
+            Console.WriteLine("Gib einen neuen Usernamen an:");
+            var user = Console.ReadLine()?.Trim() ?? "";
+            Console.WriteLine("Gib ein neues Masterpasswort an:");
+            var pwd = PasswordReader.ReadMaskedPassword();
+                
+            var s = accCtx.Accounts.FirstOrDefault(x => x.User == user);
+            if (s != null)
+            {
+#if DEBUG
+                Console.WriteLine("Username existiert bereits.");
+#endif
+                Console.WriteLine("Username oder Passwort falsch.");
+                Thread.Sleep(1000);
+                continue;
+            }
+                
+            var result = validation.ValidateUserAndPassword(user, pwd);
+            if (result.Valid)
+            {
+                appKeyService.Key = auth.GenerateAppKey(user,pwd);
+                var salt = auth.GenerateSalt();
+                var key = auth.GenerateKey(appKeyService.Key, salt);
+                
+                var newAcc =  new AccountEntity()
+                {
+                    User = user,
+                    Salt = salt,
+                    EncryptedAccount = cypher.Encrypt(new AccountService()
+                    {
+                        User = user
+                    }, key)
+                };
+                
+                // Fügen neuen Account hinzu, lösche alten und mache den neuen zum aktuellen
+                accCtx.Accounts.Add(newAcc);
+                if (accCtx.CurrentAccEntity != null) accCtx.Accounts.Remove(accCtx.CurrentAccEntity);
+                accCtx.CurrentAccEntity = newAcc;
+                
+                // Schreibt einen Eintrag in die DB
+                accCtx.SaveChanges();
+                
+                Console.WriteLine("Daten wurden geändert.");
+                Console.ReadLine();
+                return true;
+            }
+            Console.WriteLine(result.Message);
+        }
+        Console.WriteLine("Zu viele Fehlversuche. Umbenennung abgebrochen.");
+        return false;
     }
+    
     public (bool Success, AccountData? dataContext) WriteAdd()
     {
         Console.WriteLine("ACCOUNT HINZUFÜGEN");
@@ -157,10 +219,10 @@ public class ConsoleCommunicationService(AccountContext account, IValidationServ
     {
         Console.WriteLine("ACCOUNT LÖSCHEN");
         Console.WriteLine("Accountname:");
-        var account = Console.ReadLine()?.Trim();
-        if (!string.IsNullOrEmpty(account))
+        var acc = Console.ReadLine()?.Trim();
+        if (!string.IsNullOrEmpty(acc))
         {
-            return account;
+            return acc;
         }
         Console.WriteLine("FEHLER: Es wurde kein Accountname angegeben.");
         Console.WriteLine("Der Accountname ist ein Pflichtfeld.");

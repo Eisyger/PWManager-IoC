@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PWManager")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e63b1b4930eb500da5405aaa98a5973d78ce6aff")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3f8db825ca9c4a6f18629a3db02c269077488fec")]
 [assembly: System.Reflection.AssemblyProductAttribute("PWManager")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PWManager")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

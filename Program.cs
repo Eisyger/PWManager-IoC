@@ -17,6 +17,7 @@ class Program
         }
         
         var serviceProvider = new ServiceCollection()
+            .AddSingleton<IAppKeyService, AppKeyServiceService>()
             .AddDbContext<AccountContext>()
             .AddSingleton<ILoggingService, LoggingService>()  
             .AddSingleton<ICommunicationService, ConsoleCommunicationService>()

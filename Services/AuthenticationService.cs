@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using PWManager.Interfaces;
+using PWManager.Model;
 
 namespace PWManager.Services;
 
@@ -24,9 +25,9 @@ public sealed class AuthenticationService : IAuthenticationService
     /// <param name="appKey"></param>
     /// <param name="salt"></param>
     /// <returns></returns>
-    public string GenerateKey(string appKey, string salt)
+    public string GenerateKey(AppKey appKey, string salt)
     {
-        var hashBytes = SHA512.HashData(Encoding.UTF8.GetBytes(appKey + salt));
+        var hashBytes = SHA512.HashData(Encoding.UTF8.GetBytes(appKey.Value + salt));
         return Convert.ToHexString(hashBytes);
     }
 
@@ -38,10 +39,10 @@ public sealed class AuthenticationService : IAuthenticationService
     /// <param name="user"></param>
     /// <param name="pw"></param>
     /// <returns></returns>
-    public string GenerateAppKey(string user, string pw)
+    public AppKey GenerateAppKey(string user, string pw)
     {
         var hashBytes = SHA512.HashData(Encoding.UTF8.GetBytes(user+pw));
-        return Convert.ToHexString(hashBytes);
+        return new AppKey(Convert.ToBase64String(hashBytes));
     }
 }
 

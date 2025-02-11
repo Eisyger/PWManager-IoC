@@ -6,7 +6,7 @@ namespace PWManager.Interfaces;
         void Welcome();
         bool Register();
         bool Login();
-        string ChangeUserData();
+        bool ChangeUserData();
         (bool Success, AccountData? dataContext) WriteAdd();
         string Remove();
         void WriteExit();

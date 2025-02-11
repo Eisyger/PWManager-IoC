@@ -5,6 +5,7 @@ using TextCopy;
 namespace PWManager;
 
 internal class App(
+    IAppKeyService appKeyService,
     ILoggingService loggingService,
     ICommunicationService com,
     ICypherService cypher,
@@ -50,10 +51,8 @@ internal class App(
     }
     private void HandleChangeUserData()
     {
-        /*com.ChangeUserData(
-            validationService.ValidateUserAndPassword,
-            (u,p)=> authService.RecreateKey(u, p, "default"));
-        SaveData();*/
+        com.ChangeUserData();
+        SaveData();
     }
     private void HandleViewAccounts() => com.Dump(ctxService);
     private void HandleAddAccount()
@@ -102,9 +101,9 @@ internal class App(
     }
     private void SaveData()
     {
-        if (account.Current == null) return;
-        account.Current.Salt = authService.GenerateSalt();
-        account.Current.EncryptedAccount = cypher.Encrypt(ctxService, authService.GenerateKey(account.AppKey, account.Current.Salt));
+        if (account.CurrentAccEntity == null) return;
+        account.CurrentAccEntity.Salt = authService.GenerateSalt();
+        account.CurrentAccEntity.EncryptedAccount = cypher.Encrypt(ctxService, authService.GenerateKey(appKeyService.Key, account.CurrentAccEntity.Salt));
         account.SaveChanges();
     }
 }

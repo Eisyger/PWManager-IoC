@@ -6,7 +6,7 @@ namespace PWManager.Entity;
 public class AccountContext : DbContext
 {
     public DbSet<AccountEntity> Accounts { get; set; }
-    public AccountEntity? Current { get; set; }
+    public AccountEntity? CurrentAccEntity { get; set; }
     public string AppKey { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,8 +1,10 @@
+using PWManager.Model;
+
 namespace PWManager.Interfaces;
 
 public interface IAuthenticationService
 {
     public string GenerateSalt();
-    public string GenerateKey(string appKey, string salt);
-    public string GenerateAppKey(string username, string password);
+    public string GenerateKey(AppKey appKey, string salt);
+    public AppKey GenerateAppKey(string username, string password);
 }
