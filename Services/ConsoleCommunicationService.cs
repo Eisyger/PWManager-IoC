@@ -1,3 +1,4 @@
+using System.Collections;
 using PWManager.Entity;
 using PWManager.Interfaces;
 using PWManager.Model;
@@ -11,15 +12,30 @@ public class ConsoleCommunicationService(AccountContext accCtx,IAppKeyService ap
     {
         Console.WriteLine("Willkommen!");
     }
-    
-    private (string User, char[] Pwd) GetUserAndPassword(string title)
+
+    private (string User, char[] Pwd) GetUserAndPassword(string title, bool doubleCheckPassword = false)
     {
-        Console.WriteLine(title);
-        Console.WriteLine("Gib einen Usernamen an:");
-        var user = Console.ReadLine()?.Trim() ?? "";
-        Console.WriteLine("Gib ein Masterpasswort an:");
-        var pwd = PasswordReader.ReadMaskedPassword();
-        return (user, pwd);
+        while (true)
+        {
+            Console.WriteLine(title);
+            Console.WriteLine("Gib einen Usernamen an:");
+            var user = Console.ReadLine()?.Trim() ?? "";
+        
+            Console.WriteLine("Gib ein Masterpasswort an:");
+            var pwd = PasswordReader.ReadMaskedPassword();
+            
+            if (doubleCheckPassword)
+            {
+                Console.WriteLine("Wiederhole dein Masterpasswort:");
+                var pwd2 = PasswordReader.ReadMaskedPassword();
+                if (pwd.SequenceEqual(pwd2)) return (user, pwd);
+                
+                Console.WriteLine("Die Passwörter stimmen nicht überein.");
+                continue;
+            }
+
+            return (user, pwd);
+        }
     }
     public bool Register()
     {
@@ -31,7 +47,7 @@ public class ConsoleCommunicationService(AccountContext accCtx,IAppKeyService ap
 #else
                 Console.Clear();
 #endif
-            var input = GetUserAndPassword("REGISTRIERUNG");
+            var input = GetUserAndPassword("REGISTRIERUNG", doubleCheckPassword: true);
               
             var s = accCtx.Accounts.FirstOrDefault(x => x.User == input.User);
             if (s != null)
@@ -93,8 +109,7 @@ public class ConsoleCommunicationService(AccountContext accCtx,IAppKeyService ap
                 Console.WriteLine($"Username oder Passwort Falsch.");
                 continue;
             }
-       
-            var ak = auth.GenerateAppKey(input.User, input.Pwd);
+            
             var key = auth.GenerateKey(auth.GenerateAppKey(input.User, input.Pwd), s.Salt);
             AccountService ctx;
             try

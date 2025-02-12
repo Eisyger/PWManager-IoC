@@ -14,9 +14,9 @@ internal class App(
     IAuthenticationService authService,
     AccountContext account)
 {
-    public void Run()
+    public void Run(bool isRegister)
     {
-        if (account.Accounts.Any())
+        if (account.Accounts.Any()&& isRegister == false)
         {
             if(!com.Login())
                 return;

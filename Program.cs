@@ -10,14 +10,15 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        if (args.Length > 0 && Path.Exists(args[0]))
+        bool isRegister = false;
+        if (args.Length > 0)
         {
-            if (args[0] == "-register") ;
-            //TODO Implementiere Start mit Registrierung
+            if (args[0] == "-register") 
+                isRegister = true;
         }
         
         var serviceProvider = new ServiceCollection()
-            .AddSingleton<IAppKeyService, AppKeyServiceService>()
+            .AddSingleton<IAppKeyService, AppKeyService>()
             .AddDbContext<AccountContext>()
             .AddSingleton<ILoggingService, LoggingService>()  
             .AddSingleton<ICommunicationService, ConsoleCommunicationService>()
@@ -29,7 +30,7 @@ class Program
             .BuildServiceProvider();
         
         var app = serviceProvider.GetRequiredService<App>();
-        app.Run();
+        app.Run(isRegister);
     }
 }
 
