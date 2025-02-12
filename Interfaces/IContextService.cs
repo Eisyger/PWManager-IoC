@@ -4,7 +4,7 @@ namespace PWManager.Interfaces
 {
     public interface IContextService
     {
-        public List<AccountData>? ContextsList { get; set; }
+        public List<AccountData>? AccountList { get; set; }
         public string User {get;set;}
         
         void Add(AccountData @new);

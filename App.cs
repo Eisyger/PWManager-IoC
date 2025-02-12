@@ -1,3 +1,4 @@
+using System.Data;
 using PWManager.Entity;
 using PWManager.Interfaces;
 using TextCopy;
@@ -9,7 +10,7 @@ internal class App(
     ILoggingService loggingService,
     ICommunicationService com,
     ICypherService cypher,
-    IContextService ctxService,
+    IContextService accService,
     IAuthenticationService authService,
     AccountContext account)
 {
@@ -54,32 +55,45 @@ internal class App(
         com.ChangeUserData();
         SaveData();
     }
-    private void HandleViewAccounts() => com.Dump(ctxService);
+    private void HandleViewAccounts() => com.Dump(accService);
+    
     private void HandleAddAccount()
     {
         var result = com.WriteAdd();
         if (result is not { Success: true, dataContext: not null }) return;
-        ctxService.Add(result.dataContext);
+        try
+        {
+            accService.Add(result.dataContext);
+        }
+        catch (DuplicateNameException e)
+        {
+            Console.WriteLine(e.Message);
+            loggingService.Error($"Der Account {result.dataContext.Name} ist schon vorhanden.\n" + e);
+            Console.ReadKey();
+        }
         SaveData();
     }
+    
     private void HandleRemoveAccount()
     {
         var name = com.Remove();
-        if (ctxService.ContextsList?.Any(x => x.Name == name) == true)
+        try
         {
-            ctxService.Remove(name);
-            SaveData();
+            accService.Remove(name);
         }
-        else
+        catch (NullReferenceException e)
         {
-            loggingService.Error($"Kein Account mit dem Namen {name} vorhanden.");
+            Console.WriteLine(e.Message);
+            loggingService.Error($"Kein Account mit dem Namen {name} vorhanden.\n" + e);
+            Console.ReadKey();
         }
+        SaveData();
     }
     private void HandleGetAccount((MenuAction action, string Args)state)
     {
         try
         {
-            com.Dump(ctxService.GetContext(state.Args));
+            com.Dump(accService.GetContext(state.Args));
             Console.ReadLine();
         }
         catch (ArgumentNullException e)
@@ -91,7 +105,7 @@ internal class App(
     {
         try
         {
-            ClipboardService.SetText(ctxService.GetContext(state.Args).Password);
+            ClipboardService.SetText(accService.GetContext(state.Args).Password);
         }
         catch (ArgumentNullException e)
         {
@@ -103,7 +117,7 @@ internal class App(
     {
         if (account.CurrentAccEntity == null) return;
         account.CurrentAccEntity.Salt = authService.GenerateSalt();
-        account.CurrentAccEntity.EncryptedAccount = cypher.Encrypt(ctxService, authService.GenerateKey(appKeyService.Key, account.CurrentAccEntity.Salt));
+        account.CurrentAccEntity.EncryptedAccount = cypher.Encrypt(accService, authService.GenerateKey(appKeyService.Key, account.CurrentAccEntity.Salt));
         account.SaveChanges();
     }
 }
