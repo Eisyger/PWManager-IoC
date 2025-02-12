@@ -11,6 +11,16 @@ public class ConsoleCommunicationService(AccountContext accCtx,IAppKeyService ap
     {
         Console.WriteLine("Willkommen!");
     }
+    
+    private (string User, char[] Pwd) GetUserAndPassword(string title)
+    {
+        Console.WriteLine(title);
+        Console.WriteLine("Gib einen Usernamen an:");
+        var user = Console.ReadLine()?.Trim() ?? "";
+        Console.WriteLine("Gib ein Masterpasswort an:");
+        var pwd = PasswordReader.ReadMaskedPassword();
+        return (user, pwd);
+    }
     public bool Register()
     {
         const int maxAttempts = 3;
@@ -21,104 +31,105 @@ public class ConsoleCommunicationService(AccountContext accCtx,IAppKeyService ap
 #else
                 Console.Clear();
 #endif
-                Console.WriteLine("REGISTRIERUNG");
-                Console.WriteLine("Gib einen Usernamen an:");
-                var user = Console.ReadLine()?.Trim() ?? "";
-                Console.WriteLine("Gib ein Masterpasswort an:");
-                var pwd = PasswordReader.ReadMaskedPassword();
-                
-                var s = accCtx.Accounts.FirstOrDefault(x => x.User == user);
-                if (s != null)
-                {
+            var input = GetUserAndPassword("REGISTRIERUNG");
+              
+            var s = accCtx.Accounts.FirstOrDefault(x => x.User == input.User);
+            if (s != null)
+            {
 #if DEBUG
-                    Console.WriteLine("Username existiert bereits.");
+                Console.WriteLine("Username existiert bereits.");
 #endif
-                    Console.WriteLine("Username oder Passwort falsch.");
-                    Thread.Sleep(1000);
-                    continue;
-                }
-                
-                var result = validation.ValidateUserAndPassword(user, pwd);
-                if (result.Valid)
+                Console.WriteLine("Username oder Passwort falsch.");
+                Thread.Sleep(1000);
+                continue;
+            }
+            
+            var result = validation.ValidateUserAndPassword(input.User, input.Pwd);
+            if (result.Valid)
+            {
+                appKeyService.Key = auth.GenerateAppKey(input.User,input.Pwd);
+                var salt = auth.GenerateSalt();
+                var key = auth.GenerateKey(appKeyService.Key, salt);
+                accCtx.Accounts.Add(new AccountEntity()
                 {
-                    appKeyService.Key = auth.GenerateAppKey(user,pwd);
-                    var salt = auth.GenerateSalt();
-                    var key = auth.GenerateKey(appKeyService.Key, salt);
-                    accCtx.Accounts.Add(new AccountEntity()
+                    User = input.User,
+                    Salt = salt,
+                    EncryptedAccount = cypher.Encrypt(new AccountService()
                     {
-                        User = user,
-                        Salt = salt,
-                        EncryptedAccount = cypher.Encrypt(new AccountService()
-                        {
-                            User = user
-                        }, key)
-                    });
-                    // Schreibt einen Eintrag in die DB
-                    accCtx.SaveChanges();
-                    
-                    Console.WriteLine("Registrierung erfolgreich. Starte das programm erneut...");
-                    Console.ReadLine();
-                    return true;
-                }
-                Console.WriteLine(result.Message);
+                        User = input.User,
+                    }, key)
+                });
+                // Schreibt einen Eintrag in die DB
+                accCtx.SaveChanges();
+                
+                // Lösche das Passwort
+                Array.Clear(input.Pwd, 0, input.Pwd.Length);
+                
+                Console.WriteLine("Registrierung erfolgreich. Starte das programm erneut...");
+                Console.ReadKey();
+                return true;
+            }
+            Console.WriteLine(result.Message);
         }
         Console.WriteLine("Zu viele Fehlversuche. Registrierung abgebrochen.");
         return false;
     }
+    
     public bool Login()
     {
         const int maxAttempts = 3;
         for (var i = 0; i < maxAttempts; i++)
         {
 #if DEBUG
-                Console.WriteLine("##############################################");
+            Console.WriteLine("##############################################");
 #else
-                Console.Clear();
+        Console.Clear();
 #endif
-                Console.WriteLine("LOGIN");
-                Console.WriteLine("Gib deinen Usernamen an:");
-                var user = Console.ReadLine()?.Trim() ?? "";
-                Console.WriteLine("Gib dein Masterpasswort an:");
-                var pwd = PasswordReader.ReadMaskedPassword();
-                
-                var s = accCtx.Accounts.FirstOrDefault(x => x.User == user);
-                if (s == null)
-                {
-                    Console.WriteLine($"Username oder Passwort Falsch.");
-                    continue;
-                }
-                
-                
-                var key = auth.GenerateKey(auth.GenerateAppKey(user, pwd), s.Salt);
-                AccountService ctx;
-                try
-                {
-                    // Tritt beim Laden des ContextService ein Fehler auf, so sind die Logindaten falsch, oder die DB ist defekt. Letzteres wird ignoriert.
-                    ctx = cypher.Decrypt<AccountService>(s.EncryptedAccount, key);
-                }
-                catch (Exception ex)
-                {
+            var input = GetUserAndPassword("LOGIN");
+       
+            var s = accCtx.Accounts.FirstOrDefault(x => x.User == input.User);
+            if (s == null)
+            {
+                Console.WriteLine($"Username oder Passwort Falsch.");
+                continue;
+            }
+       
+            var ak = auth.GenerateAppKey(input.User, input.Pwd);
+            var key = auth.GenerateKey(auth.GenerateAppKey(input.User, input.Pwd), s.Salt);
+            AccountService ctx;
+            try
+            {
+                // Tritt beim Laden des ContextService ein Fehler auf, so sind die Logindaten falsch, oder die DB ist defekt. Letzteres wird ignoriert.
+                ctx = cypher.Decrypt<AccountService>(s.EncryptedAccount, key);
+            }
+            catch (Exception ex)
+            {
 #if DEBUG
-                    Console.WriteLine("Fehler beim entschlüsseln");
-                    Console.WriteLine(ex.Message);
+                Console.WriteLine("Fehler beim entschlüsseln");
+                Console.WriteLine(ex.Message);
 #endif
-                    Console.WriteLine("Username oder Passwort falsch.");
-                    Thread.Sleep(1000);
-                    continue;
-                }
-                
-                accCtx.CurrentAccEntity = s;
-                
-                // AppKey für die Verschlüsselung während der Laufzeit, ohne erneuten Zugriff auf Username und Passwort. 
-                appKeyService.Key = auth.GenerateAppKey(user, pwd);
-                    
-                context.User = ctx.User;
-                context.ContextsList = ctx.ContextsList;
-                
-                Console.WriteLine("Login Erfolgreich!");
-                return true;
+                Console.WriteLine("Username oder Passwort falsch.");
+                Thread.Sleep(1000);
+                continue;
+            }
+        
+            accCtx.CurrentAccEntity = s;
+        
+            // AppKey für die Verschlüsselung während der Laufzeit, ohne erneuten Zugriff auf Username und Passwort. 
+            appKeyService.Key = auth.GenerateAppKey(input.User, input.Pwd);
+            
+            Array.Clear(input.Pwd, 0, input.Pwd.Length);
+            
+            context.User = ctx.User;
+            context.AccountList = ctx.AccountList;
+        
+            // Lösche das Passwort
+            Array.Clear(input.Pwd, 0, input.Pwd.Length);
+            
+            Console.WriteLine("Login Erfolgreich!");
+            return true;
         }
-        Console.WriteLine("Zu viele Fehlversuche. Registrierung abgebrochen.");
+        Console.WriteLine("Zu viele Fehlversuche. Login abgebrochen.");
         return false;
     }
 
@@ -132,13 +143,9 @@ public class ConsoleCommunicationService(AccountContext accCtx,IAppKeyService ap
 #else
                 Console.Clear();
 #endif
-            Console.WriteLine("ÄNDERE LOGINDATEN");
-            Console.WriteLine("Gib einen neuen Usernamen an:");
-            var user = Console.ReadLine()?.Trim() ?? "";
-            Console.WriteLine("Gib ein neues Masterpasswort an:");
-            var pwd = PasswordReader.ReadMaskedPassword();
+            var input = GetUserAndPassword("BENUTZERDATEN ÄNDERN");
                 
-            var s = accCtx.Accounts.FirstOrDefault(x => x.User == user);
+            var s = accCtx.Accounts.FirstOrDefault(x => x.User == input.User);
             if (s != null)
             {
 #if DEBUG
@@ -149,20 +156,20 @@ public class ConsoleCommunicationService(AccountContext accCtx,IAppKeyService ap
                 continue;
             }
                 
-            var result = validation.ValidateUserAndPassword(user, pwd);
+            var result = validation.ValidateUserAndPassword(input.User, input.Pwd);
             if (result.Valid)
             {
-                appKeyService.Key = auth.GenerateAppKey(user,pwd);
+                appKeyService.Key = auth.GenerateAppKey(input.User,input.Pwd);
                 var salt = auth.GenerateSalt();
                 var key = auth.GenerateKey(appKeyService.Key, salt);
                 
                 var newAcc =  new AccountEntity()
                 {
-                    User = user,
+                    User = input.User,
                     Salt = salt,
                     EncryptedAccount = cypher.Encrypt(new AccountService()
                     {
-                        User = user
+                        User = input.User
                     }, key)
                 };
                 
@@ -174,8 +181,11 @@ public class ConsoleCommunicationService(AccountContext accCtx,IAppKeyService ap
                 // Schreibt einen Eintrag in die DB
                 accCtx.SaveChanges();
                 
+                // Lösche das Passwort
+                Array.Clear(input.Pwd, 0, input.Pwd.Length);
+                
                 Console.WriteLine("Daten wurden geändert.");
-                Console.ReadLine();
+                Console.ReadKey();
                 return true;
             }
             Console.WriteLine(result.Message);
@@ -208,7 +218,7 @@ public class ConsoleCommunicationService(AccountContext accCtx,IAppKeyService ap
         {
             Name = name,
             User = user ?? "-",
-            Password = pwd,
+            Password = new string(pwd),
             Website = url ?? "-",
             Description = description ?? "-"
         };
@@ -253,7 +263,7 @@ public class ConsoleCommunicationService(AccountContext accCtx,IAppKeyService ap
                               """);
             Console.WriteLine(validInput ? "Bitte eine Option wählen:" : "Ungültige Eingabe!");
             
-            var input = Console.ReadLine()?.Trim().ToLower().Split(" ");
+            var input = Console.ReadLine()?.Trim().ToLower()?.Split(" ");
             
             if (input is null || input.Length == 0)
             {
@@ -288,7 +298,7 @@ public class ConsoleCommunicationService(AccountContext accCtx,IAppKeyService ap
     }
     public void Dump(IContextService contextService)
     {
-        var contexts = contextService.ContextsList;
+        var contexts = contextService.AccountList;
         var counter = 0;
         if (contexts == null || contexts.Count == 0)
         {
@@ -302,11 +312,11 @@ public class ConsoleCommunicationService(AccountContext accCtx,IAppKeyService ap
                 Console.WriteLine($"    | {counter}: {c.Name}");
             }
         }
-        Console.ReadLine();
+        Console.ReadKey();
     }
     public void Dump(IDataContext dataContext)
     {
         Console.WriteLine(dataContext.ToString());
-        Console.ReadLine();
+        Console.ReadKey();
     }   
 }

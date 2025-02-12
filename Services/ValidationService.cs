@@ -12,7 +12,7 @@ public class ValidationService : IValidationService
     /// <param name="username"></param>
     /// <param name="password"></param>
     /// <returns></returns>
-    public (bool Valid, string Message) ValidateUserAndPassword(string username, string password)
+    public (bool Valid, string Message) ValidateUserAndPassword(string username, char[] password)
     {
         var msg = string.Empty;
 
@@ -42,7 +42,7 @@ public class ValidationService : IValidationService
 
         if (!password.Any(ch => "!|@#$%^&*()".Contains(ch)))
             msg += "Das Passwort muss mindestens ein Sonderzeichen enthalten: '!|@#$%^&*()'\n";
-
+        
         if (msg.Length == 0)
         {
             return (true, string.Empty);

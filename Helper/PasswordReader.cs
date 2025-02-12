@@ -7,9 +7,10 @@ public static class PasswordReader
     /// ESC zum Abbrechen der Eingabe.
     /// </summary>
     /// <returns>Die manuelle Eingabe.</returns>
-    public static string ReadMaskedPassword()
+    public static char[] ReadMaskedPassword()
     {
-        var password = string.Empty;
+        var password = new char[256];
+        var cursor = 0;
         ConsoleKey key;
 
         do
@@ -17,25 +18,28 @@ public static class PasswordReader
             var keyInfo = Console.ReadKey(intercept: true);
             key = keyInfo.Key;
 
-            if (key == ConsoleKey.Backspace && password.Length > 0)
+            switch (key)
             {
-                password = password[..^1];
-                Console.Write("\b \b");
-            }
-            else if (key == ConsoleKey.Escape)
-            {
-                Console.WriteLine("\nPassword input cancelled.");
-                return string.Empty;
-            }
-            else if (!char.IsControl(keyInfo.KeyChar))
-            {
-                password += keyInfo.KeyChar;
-                Console.Write("*");
+                case ConsoleKey.Backspace when cursor > 0:
+                    cursor--;
+                    Console.Write("\b \b");
+                    break;
+                case ConsoleKey.Escape:
+                    Console.WriteLine("\nPassword input cancelled.");
+                    return [];
+                default:
+                {
+                    if (!char.IsControl(keyInfo.KeyChar))
+                    {
+                        password[cursor++] = keyInfo.KeyChar;
+                        Console.Write("*");
+                    }
+                    break;
+                }
             }
         } while (key != ConsoleKey.Enter);
 
         Console.WriteLine();
-        return password;
+        return password[..cursor];
     }
-    
 }

@@ -33,15 +33,15 @@ public sealed class AuthenticationService : IAuthenticationService
 
     /// <summary>
     /// Erstellt einen AppKey, welcher zur Laufzeit Username und Passwort darstellt. Das Passwort
-    /// sollte nicht im Program als Klartext gespeichert, sowie einer Variablen zugewiesen werden.
+    /// sollte nicht im Program in einer string Variable als Klartext gespeichert oder zugewiesen werden.
     /// Bis der GarbageCollector die Variable beseitigt hat, kann zur Laufzeit das Passwort ausgelesen werden.
     /// </summary>
     /// <param name="user"></param>
     /// <param name="pw"></param>
     /// <returns></returns>
-    public AppKey GenerateAppKey(string user, string pw)
+    public AppKey GenerateAppKey(string user, char[] pw)
     {
-        var hashBytes = SHA512.HashData(Encoding.UTF8.GetBytes(user+pw));
+        var hashBytes = SHA512.HashData(Encoding.UTF8.GetBytes(user+new string(pw)));
         return new AppKey(Convert.ToBase64String(hashBytes));
     }
 }
