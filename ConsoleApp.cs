@@ -5,7 +5,7 @@ using TextCopy;
 
 namespace PWManager;
 
-internal class App(
+internal class ConsoleApp(
     IAppKeyService appKeyService,
     ILoggingService loggingService,
     ICommunicationService com,

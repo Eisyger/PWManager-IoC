@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore;
-using PWManager.Config;
+using Microsoft.Extensions.Configuration;
 
 namespace PWManager.Entity;
 
-public class AccountContext : DbContext
+public class AccountContext(DbContextOptions<AccountContext> options, IConfiguration config) : DbContext(options)
 {
     public DbSet<AccountEntity> Accounts { get; set; }
     public AccountEntity? CurrentAccEntity { get; set; }
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AccountEntity>().HasKey(s => s.User);
@@ -15,8 +15,6 @@ public class AccountContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        var config = Configuration.GetConfig();
-        
         var section = config.GetSection("Database");
         var basePath = section.GetSection("ConnectionStringWithoutFilename").Value;
         var filename = section.GetSection("Filename").Value;

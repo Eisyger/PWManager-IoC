@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PWManager.Entity;
 using PWManager.Interfaces;
@@ -17,7 +18,13 @@ class Program
                 isRegister = true;
         }
         
+        var config = new ConfigurationBuilder().
+            SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .Build();
+        
         var serviceProvider = new ServiceCollection()
+            .AddSingleton<IConfiguration>(config)
             .AddSingleton<IAppKeyService, AppKeyService>()
             .AddDbContext<AccountContext>()
             .AddSingleton<ILoggingService, LoggingService>()  
@@ -26,10 +33,10 @@ class Program
             .AddSingleton<IContextService, AccountService>()
             .AddSingleton<IAuthenticationService, AuthenticationService>()
             .AddSingleton<IValidationService, ValidationService>()
-            .AddSingleton<App>()
+            .AddSingleton<ConsoleApp>()
             .BuildServiceProvider();
         
-        var app = serviceProvider.GetRequiredService<App>();
+        var app = serviceProvider.GetRequiredService<ConsoleApp>();
         app.Run(isRegister);
     }
 }
