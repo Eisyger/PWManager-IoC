@@ -1,7 +1,6 @@
 /PWManager.csproj.DotSettings
 /bin/
 /obj/
-/sessions.db
-/Migrations/20250206181604_InitialMigration.cs
-/Migrations/20250206181604_InitialMigration.Designer.cs
-/Migrations/SessionContextModelSnapshot.cs
+/Session.db
+/Migrations/
+/.idea/
