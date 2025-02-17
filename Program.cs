@@ -1,5 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
+using PWManager.Builder;
 using PWManager.Entity;
 using PWManager.Interfaces;
 using PWManager.Services;
@@ -11,33 +16,18 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        bool isRegister = false;
-        if (args.Length > 0)
-        {
-            if (args[0] == "-register") 
-                isRegister = true;
-        }
+        var builder = WebApplication.CreateBuilder(args);
+        builder.Services.AddSingleton<ConsoleAppBuilder>();
+        builder.Services.AddControllers();
+
+        var app = builder.Build();
+        app.MapControllers();
         
-        var config = new ConfigurationBuilder().
-            SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .Build();
+        var consoleApp = app.Services.GetRequiredService<ConsoleAppBuilder>();
+        Task.Run(() => consoleApp.Run(args));
         
-        var serviceProvider = new ServiceCollection()
-            .AddSingleton<IConfiguration>(config)
-            .AddSingleton<IAppKeyService, AppKeyService>()
-            .AddDbContext<AccountContext>()
-            .AddSingleton<ILoggingService, LoggingService>()  
-            .AddSingleton<ICommunicationService, ConsoleCommunicationService>()
-            .AddSingleton<ICypherService, CypherService>()
-            .AddSingleton<IContextService, AccountService>()
-            .AddSingleton<IAuthenticationService, AuthenticationService>()
-            .AddSingleton<IValidationService, ValidationService>()
-            .AddSingleton<ConsoleApp>()
-            .BuildServiceProvider();
-        
-        var app = serviceProvider.GetRequiredService<ConsoleApp>();
-        app.Run(isRegister);
+        app.Run();
     }
 }
+
 

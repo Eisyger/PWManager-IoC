@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v9.0": {
       "PWManager/1.0.0": {
         "dependencies": {
+          "Microsoft.AspNetCore.OpenApi": "9.0.0",
           "Microsoft.EntityFrameworkCore": "9.0.0",
           "Microsoft.EntityFrameworkCore.Sqlite": "9.0.0",
           "Microsoft.EntityFrameworkCore.Tools": "9.0.0",
@@ -24,6 +25,17 @@
           "lib/net6.0/Humanizer.dll": {
             "assemblyVersion": "2.14.0.0",
             "fileVersion": "2.14.1.48190"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.OpenApi/9.0.0": {
+        "dependencies": {
+          "Microsoft.OpenApi": "1.6.17"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.AspNetCore.OpenApi.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.24.52903"
           }
         }
       },
@@ -432,12 +444,6 @@
       "Microsoft.Extensions.Caching.Abstractions/9.0.0": {
         "dependencies": {
           "Microsoft.Extensions.Primitives": "9.0.1"
-        },
-        "runtime": {
-          "lib/net9.0/Microsoft.Extensions.Caching.Abstractions.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.24.52809"
-          }
         }
       },
       "Microsoft.Extensions.Caching.Memory/9.0.0": {
@@ -447,12 +453,6 @@
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "Microsoft.Extensions.Options": "9.0.0",
           "Microsoft.Extensions.Primitives": "9.0.1"
-        },
-        "runtime": {
-          "lib/net9.0/Microsoft.Extensions.Caching.Memory.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.24.52809"
-          }
         }
       },
       "Microsoft.Extensions.Configuration/9.0.1": {
@@ -510,22 +510,9 @@
       "Microsoft.Extensions.DependencyInjection/9.0.0": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.0"
-        },
-        "runtime": {
-          "lib/net9.0/Microsoft.Extensions.DependencyInjection.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.24.52809"
-          }
         }
       },
-      "Microsoft.Extensions.DependencyInjection.Abstractions/9.0.0": {
-        "runtime": {
-          "lib/net9.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.24.52809"
-          }
-        }
-      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions/9.0.0": {},
       "Microsoft.Extensions.DependencyModel/9.0.0": {
         "runtime": {
           "lib/net9.0/Microsoft.Extensions.DependencyModel.dll": {
@@ -571,35 +558,17 @@
           "Microsoft.Extensions.DependencyInjection": "9.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "Microsoft.Extensions.Options": "9.0.0"
-        },
-        "runtime": {
-          "lib/net9.0/Microsoft.Extensions.Logging.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.24.52809"
-          }
         }
       },
       "Microsoft.Extensions.Logging.Abstractions/9.0.0": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.0"
-        },
-        "runtime": {
-          "lib/net9.0/Microsoft.Extensions.Logging.Abstractions.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.24.52809"
-          }
         }
       },
       "Microsoft.Extensions.Options/9.0.0": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.0",
           "Microsoft.Extensions.Primitives": "9.0.1"
-        },
-        "runtime": {
-          "lib/net9.0/Microsoft.Extensions.Options.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.24.52809"
-          }
         }
       },
       "Microsoft.Extensions.Primitives/9.0.1": {
@@ -607,6 +576,14 @@
           "lib/net9.0/Microsoft.Extensions.Primitives.dll": {
             "assemblyVersion": "9.0.0.0",
             "fileVersion": "9.0.124.61010"
+          }
+        }
+      },
+      "Microsoft.OpenApi/1.6.17": {
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.OpenApi.dll": {
+            "assemblyVersion": "1.6.17.0",
+            "fileVersion": "1.6.17.0"
           }
         }
       },
@@ -869,6 +846,13 @@
       "path": "humanizer.core/2.14.1",
       "hashPath": "humanizer.core.2.14.1.nupkg.sha512"
     },
+    "Microsoft.AspNetCore.OpenApi/9.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-FqUK5j1EOPNuFT7IafltZQ3cakqhSwVzH5ZW1MhZDe4pPXs9sJ2M5jom1Omsu+mwF2tNKKlRAzLRHQTZzbd+6Q==",
+      "path": "microsoft.aspnetcore.openapi/9.0.0",
+      "hashPath": "microsoft.aspnetcore.openapi.9.0.0.nupkg.sha512"
+    },
     "Microsoft.Bcl.AsyncInterfaces/7.0.0": {
       "type": "package",
       "serviceable": true,
@@ -1106,6 +1090,13 @@
       "sha512": "sha512-bHtTesA4lrSGD1ZUaMIx6frU3wyy0vYtTa/hM6gGQu5QNrydObv8T5COiGUWsisflAfmsaFOe9Xvw5NSO99z0g==",
       "path": "microsoft.extensions.primitives/9.0.1",
       "hashPath": "microsoft.extensions.primitives.9.0.1.nupkg.sha512"
+    },
+    "Microsoft.OpenApi/1.6.17": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Le+kehlmrlQfuDFUt1zZ2dVwrhFQtKREdKBo+rexOwaCoYP0/qpgT9tLxCsZjsgR5Itk1UKPcbgO+FyaNid/bA==",
+      "path": "microsoft.openapi/1.6.17",
+      "hashPath": "microsoft.openapi.1.6.17.nupkg.sha512"
     },
     "Mono.TextTemplating/3.0.0": {
       "type": "package",

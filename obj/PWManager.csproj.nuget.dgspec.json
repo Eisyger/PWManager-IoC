@@ -45,9 +45,9 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
-            "Microsoft.AspNetCore.Mvc": {
+            "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
-              "version": "[2.3.0, )"
+              "version": "[9.0.0, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",

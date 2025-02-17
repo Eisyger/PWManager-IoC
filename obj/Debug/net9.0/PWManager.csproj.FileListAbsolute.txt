@@ -3,8 +3,6 @@
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/PWManager.runtimeconfig.json
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/PWManager.dll
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/PWManager.pdb
-/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.DependencyInjection.dll
-/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
 /media/eisy/w/projekte/git/IoPWM/PWManager/obj/Debug/net9.0/PWManager.csproj.AssemblyReference.cache
 /media/eisy/w/projekte/git/IoPWM/PWManager/obj/Debug/net9.0/PWManager.GeneratedMSBuildEditorConfig.editorconfig
 /media/eisy/w/projekte/git/IoPWM/PWManager/obj/Debug/net9.0/PWManager.AssemblyInfoInputs.cache
@@ -33,13 +31,8 @@
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.EntityFrameworkCore.Design.dll
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.EntityFrameworkCore.Relational.dll
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.EntityFrameworkCore.Sqlite.dll
-/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.Caching.Abstractions.dll
-/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.Caching.Memory.dll
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.Configuration.Abstractions.dll
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.DependencyModel.dll
-/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.Logging.dll
-/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.Logging.Abstractions.dll
-/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.Options.dll
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.Primitives.dll
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Mono.TextTemplating.dll
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/SQLitePCLRaw.batteries_v2.dll
@@ -144,3 +137,5 @@
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.FileProviders.Physical.dll
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.Extensions.FileSystemGlobbing.dll
 /media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/appsettings.json
+/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.AspNetCore.OpenApi.dll
+/media/eisy/w/projekte/git/IoPWM/PWManager/bin/Debug/net9.0/Microsoft.OpenApi.dll
