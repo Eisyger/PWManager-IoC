@@ -1,10 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
-using PWManager.Builder;
 using PWManager.Entity;
 using PWManager.Interfaces;
 using PWManager.Services;
@@ -16,17 +12,34 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        bool isRegister = false;
+        if (args.Length > 0)
+        {
+            // TODO Parser für args in Klasse auslagern und Migration per arg ausführen
+            if (args[0] == "-register") 
+                isRegister = true;
+        }
         var builder = WebApplication.CreateBuilder(args);
-        builder.Services.AddSingleton<ConsoleAppBuilder>();
         builder.Services.AddControllers();
-
+        builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+        builder.Services.AddSingleton<IAppKeyService, AppKeyService>();
+        builder.Services.AddDbContext<AccountContext>();
+        builder.Services.AddSingleton<ILoggingService, LoggingService>();
+        builder.Services.AddSingleton<ICommunicationService, ConsoleCommunicationService>();
+        builder.Services.AddSingleton<ICypherService, CypherService>();
+        builder.Services.AddSingleton<IContextService, AccountService>();
+        builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
+        builder.Services.AddSingleton<IValidationService, ValidationService>();
+        builder.Services.AddSingleton<ConsoleApp>();
+        
         var app = builder.Build();
+        app.UseRouting();
+        app.UseAuthorization();
         app.MapControllers();
+        Task.Run(() => app.Run());
         
-        var consoleApp = app.Services.GetRequiredService<ConsoleAppBuilder>();
-        Task.Run(() => consoleApp.Run(args));
-        
-        app.Run();
+        app.Services.GetRequiredService<ConsoleApp>().Run(isRegister);
     }
 }
 

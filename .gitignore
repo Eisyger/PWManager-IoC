@@ -4,3 +4,5 @@
 /Session.db
 /Migrations/
 /.idea/
+/Session.db-shm
+/Session.db-wal
