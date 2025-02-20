@@ -1,23 +1,22 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
-using PWManager.Entity;
+using PWManager.Context;
 using PWManager.Interfaces;
 using PWManager.Services;
 
 namespace PWManager;
 
-class Program
+internal static class Program
 {
     [STAThread]
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddControllers();
-        builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+        builder.Configuration.SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+        builder.Services.AddDbContext<IAccountContext, AccountContext>();
         builder.Services.AddSingleton<IAppKeyService, AppKeyService>();
-        builder.Services.AddDbContext<AccountContext>();
         builder.Services.AddSingleton<ILoggingService, LoggingService>();
         builder.Services.AddSingleton<ICommunicationService, ConsoleCommunicationService>();
         builder.Services.AddSingleton<ICypherService, CypherService>();

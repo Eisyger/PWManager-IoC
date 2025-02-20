@@ -1,4 +1,4 @@
-namespace PWManager.Entity;
+namespace PWManager.Context;
 
 public class AccountEntity
 {

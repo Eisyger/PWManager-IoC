@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using PWManager.Interfaces;
 
-namespace PWManager.Entity;
+namespace PWManager.Context;
 
-public class AccountContext(DbContextOptions<AccountContext> options, IConfiguration config) : DbContext(options)
+public class AccountContext(DbContextOptions<AccountContext> options, IConfiguration config) : DbContext(options), IAccountContext
 {
     public DbSet<AccountEntity> Accounts { get; set; }
     public AccountEntity? CurrentAccEntity { get; set; }
