@@ -1,6 +1,6 @@
 using PWManager.Interfaces;
 
-namespace PWManager.Model
+namespace PWManager.Data
 {
     public class AccountData : IDataContext
     {

@@ -1,4 +1,4 @@
-using PWManager.Model;
+using PWManager.Data;
 
 namespace PWManager.Interfaces
 {
@@ -6,7 +6,6 @@ namespace PWManager.Interfaces
     {
         public List<AccountData>? AccountList { get; set; }
         public string User {get;set;}
-        
         void Add(AccountData @new);
         void Remove(string name);
         void Edit(string name, AccountData updated);

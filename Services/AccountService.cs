@@ -1,6 +1,6 @@
 using System.Data;
 using PWManager.Interfaces;
-using PWManager.Model;
+using PWManager.Data;
 
 namespace PWManager.Services
 {

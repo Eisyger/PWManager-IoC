@@ -1,4 +1,4 @@
-using PWManager.Model;
+using PWManager.Data;
 
 namespace PWManager.Interfaces;
 

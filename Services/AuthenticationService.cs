@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using PWManager.Interfaces;
-using PWManager.Model;
+using PWManager.Data;
 
 namespace PWManager.Services;
 
