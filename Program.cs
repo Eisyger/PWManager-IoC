@@ -12,13 +12,6 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        bool isRegister = false;
-        if (args.Length > 0)
-        {
-            // TODO Parser für args in Klasse auslagern und Migration per arg ausführen
-            if (args[0] == "-register") 
-                isRegister = true;
-        }
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddControllers();
         builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
@@ -39,7 +32,7 @@ class Program
         app.MapControllers();
         Task.Run(() => app.Run());
         
-        app.Services.GetRequiredService<ConsoleApp>().Run(isRegister);
+        app.Services.GetRequiredService<ConsoleApp>().Run(ArgsParser.Register(args));
     }
 }
 
